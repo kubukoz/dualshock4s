@@ -50,16 +50,20 @@ object Main extends IOApp {
         fs2.Stream.resource(hidServices.flatMap(useDevice)).flatMap(readDevice(_)(blocker))
       }
       .map(Dualshock.codec.decode(_))
-      .map {
-        _.map { result =>
-          result.map(d => (d, result.remainder.take(8).splitAt(4).bimap(_.toInt(), _.toInt())))
-        }
-      }
+      // .map {
+      //   _.map { result =>
+      //     result.map(d => (d, result.remainder.take(8).splitAt(4).bimap(_.toInt(), _.toInt())))
+      //   }
+      // }
+      .map(_.toOption.get.value)
       .metered(10.millis)
       // .map(_.toOption.get.value._1.keys.xoxo.toString())
-      // .changes
-      .debug()
-      .takeWhile(!_.toOption.get.value._1.keys.xoxo.circle.on)
+      .takeWhile(!_.keys.xoxo.circle.on)
+      .map(ds => (ds.keys.l2, ds.keys.r2))
+      .map(_.toString())
+      .changes
+      .showLinesStdOut
+      // .takeWhile(!_.toOption.get.value._1.keys.xoxo.circle.on)
       .compile
       .drain
       .as(ExitCode.Success)

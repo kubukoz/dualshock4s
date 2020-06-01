@@ -20,6 +20,30 @@ final case class Dualshock(keys: Keys /*, touch: Touch, motion: Motion, info: In
 
 object Dualshock {
 
+  /**
+    * This codec will read prefix, inner, then suffix, then merge the prefix & suffix into a single HList,
+    * which will be prepended to the inner part. Merging and splitting is done using the functions provided by the user.
+    */
+  def bracketed[Prefix, Inner <: HList, Suffix, Merged <: HList, Prepended <: HList, MergedLength <: Nat](
+    prefix: Codec[Prefix],
+    inner: Codec[Inner],
+    suffix: Codec[Suffix]
+  )(
+    merge: (Prefix, Suffix) => Merged
+  )(
+    split: Merged => (Prefix, Suffix)
+  )(
+    implicit prepend: Prepend.Aux[Merged, Inner, Prepended],
+    splitInstance: Split.Aux[Prepended, MergedLength, Merged, Inner]
+  ): Codec[Prepended] =
+    (prefix :: inner :: suffix).imap {
+      case a :: b :: c :: HNil =>
+        merge(a, c) ::: b
+    } { prepended =>
+      val ((a, c), b) = prepended.split[MergedLength].leftMap(split)
+      a :: b :: c :: HNil
+    }
+
   implicit val codec: Codec[Dualshock] = {
 
     val header = "constant 1 byte" | constant(bin"00000001")
@@ -51,26 +75,6 @@ object Dualshock {
 
     val xoxo = "action buttons" | sizedList(4, digital).imap(_.toHList)(_.toSized[List]).as[XOXO]
 
-    def bracketed[Prefix, Inner <: HList, Suffix, Merged <: HList, Prepended <: HList, MergedLength <: Nat](
-      prefix: Codec[Prefix],
-      inner: Codec[Inner],
-      suffix: Codec[Suffix]
-    )(
-      merge: (Prefix, Suffix) => Merged
-    )(
-      split: Merged => (Prefix, Suffix)
-    )(
-      implicit prepend: Prepend.Aux[Merged, Inner, Prepended],
-      splitInstance: Split.Aux[Prepended, MergedLength, Merged, Inner]
-    ): Codec[Prepended] =
-      (prefix :: inner :: suffix).imap {
-        case a :: b :: c :: HNil =>
-          merge(a, c) ::: b
-      } { prepended =>
-        val ((a, c), b) = prepended.split[MergedLength].leftMap(split)
-        a :: b :: c :: HNil
-      }
-
     def sticks[Between <: HList](between: Codec[Between]): Codec[Stick :: Stick :: Between] =
       bracketed(
         l3 :: r3,
@@ -87,30 +91,23 @@ object Dualshock {
           (leftAnalogs :: rightAnalogs, r3.pressed :: l3.pressed :: HNil)
       }
 
-    def bumperCodec(on: Boolean): Codec[Bumper] =
-      either(
-        provide(on),
-        analog.unit(Analog(0)) ~> provide(Bumper.NotPressed),
-        analog.as[Bumper.Pressed]
-      ).imap(_.merge)(_.fold(Left(NotPressed), Pressed(_).asRight))
-
+    val bumperCodec: Boolean => Codec[Bumper] = {
+      case false => analog.unit(Analog(0)) ~> provide(Bumper.NotPressed)
+      case true  => analog.as[Bumper.Pressed].widenOptc[Bumper](identity)(_.fold(none, Bumper.Pressed(_).some))
+    }
     def bumpers[Between <: HList](betweenCodec: Codec[Between]): Codec[Bumper :: Bumper :: Between] = {
       val prefix = ("R2" | digital) :: ("L2" | digital)
 
       prefix
         .consume {
-          case r2Pressed :: l2Pressed :: HNil =>
-            betweenCodec :: bumperCodec(l2Pressed.on) :: bumperCodec(r2Pressed.on)
+          case r2Pressed :: l2Pressed :: HNil => betweenCodec :: bumperCodec(l2Pressed.on) :: bumperCodec(r2Pressed.on)
         } {
-          case _ :: l2 :: r2 :: HNil =>
-            r2.isOn :: l2.isOn :: HNil
+          case _ :: l2 :: r2 :: HNil => r2.isOn :: l2.isOn :: HNil
         }
         .imap {
-          case between :: l2 :: r2 :: HNil =>
-            l2 :: r2 :: between
+          case between :: l2 :: r2 :: HNil => l2 :: r2 :: between
         } {
-          case l2 :: r2 :: between =>
-            between :: l2 :: r2 :: HNil
+          case l2 :: r2 :: between => between :: l2 :: r2 :: HNil
         }
     }
 
