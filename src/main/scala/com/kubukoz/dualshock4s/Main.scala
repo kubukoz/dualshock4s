@@ -55,7 +55,9 @@ object Main extends IOApp {
           result.map(d => (d, result.remainder.take(8).toBin))
         }
       }
-      .metered(10.millis)
+      // .metered(10.millis)
+      .map(_.toOption.get.value._1.keys.xoxo.toString())
+      .changes
       .debug()
       .compile
       .drain

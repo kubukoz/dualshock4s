@@ -67,7 +67,7 @@ object Key {
   }
 }
 
-final case class XOXO(cross: Key.Digital, square: Key.Digital, triangle: Key.Digital, circle: Key.Digital)
+final case class XOXO(triangle: Key.Digital, circle: Key.Digital, cross: Key.Digital, square: Key.Digital)
 
 final case class Keys(
   l3: Key.Stick,
