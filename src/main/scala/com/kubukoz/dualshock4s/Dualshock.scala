@@ -91,10 +91,13 @@ object Dualshock {
           (leftAnalogs :: rightAnalogs, r3.pressed :: l3.pressed :: HNil)
       }
 
-    val bumperCodec: Boolean => Codec[Bumper] = {
-      case false => analog.unit(Analog(0)) ~> provide(Bumper.NotPressed)
-      case true  => analog.as[Bumper.Pressed].widenOptc[Bumper](identity)(_.fold(none, Bumper.Pressed(_).some))
-    }
+    def bumperCodec(pressed: Boolean): Codec[Bumper] =
+      either(
+        provide(pressed),
+        analog.unit(Analog(0)),
+        analog
+      ).imap(Bumper.fromEither)(_.toEither)
+
     def bumpers[Between <: HList](betweenCodec: Codec[Between]): Codec[Bumper :: Bumper :: Between] = {
       val prefix = ("R2" | digital) :: ("L2" | digital)
 
@@ -138,11 +141,14 @@ object Key {
       case NotPressed        => notPressed
       case Pressed(strength) => pressed(strength)
     }
+    def toEither: Either[Unit, Analog] = fold(Left(()), _.asRight)
   }
 
   object Bumper {
     case object NotPressed extends Bumper
     final case class Pressed(strength: Analog) extends Bumper
+
+    val fromEither: Either[Unit, Analog] => Bumper = _.fold(_ => NotPressed, Pressed)
   }
 
   object Stick {
