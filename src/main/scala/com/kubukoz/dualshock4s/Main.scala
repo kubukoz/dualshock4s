@@ -7,12 +7,14 @@ import cats.effect.Resource
 import org.hid4java.HidServices
 import fs2.Stream
 import cats.implicits._
-import scodec._
 import scodec.bits._
 import org.hid4java.HidDevice
-import java.io.InputStream
 import _root_.cats.effect.Blocker
 import scala.concurrent.duration._
+import cats.effect.Timer
+import cats.effect.Sync
+import fs2.Pipe
+import java.util.concurrent.TimeUnit
 
 object Main extends IOApp {
 
@@ -43,11 +45,36 @@ object Main extends IOApp {
         Stream.repeatEval(loadBuffer *> readBuffer)
       }
 
+  def retryExponentially[F[_]: Timer: Sync, A]: Pipe[F, A, A] = {
+    val factor = 1.2
+
+    def go(stream: Stream[F, A], attemptsRemaining: Int, currentDelay: FiniteDuration): Stream[F, A] =
+      if (attemptsRemaining <= 1) stream
+      else
+        Stream.suspend {
+          val newDelay = FiniteDuration((currentDelay * factor).toMillis, TimeUnit.MILLISECONDS)
+
+          val showRetrying = Stream.eval_(
+            Sync[F].delay(
+              println(s"Device not available, retrying ${attemptsRemaining - 1} more times in $newDelay...")
+            )
+          )
+
+          stream.handleErrorWith(_ => showRetrying ++ go(stream, attemptsRemaining - 1, newDelay).delayBy(currentDelay))
+        }
+
+    go(_, 10, 1.second)
+  }
+
   def run(args: List[String]): IO[ExitCode] =
     Stream
       .resource(Blocker[IO])
       .flatMap { blocker =>
-        fs2.Stream.resource(hidServices.flatMap(useDevice)).flatMap(readDevice(_)(blocker))
+        fs2
+          .Stream
+          .resource(hidServices)
+          .flatMap((useDevice _).andThen(Stream.resource(_).through(retryExponentially)))
+          .flatMap(readDevice(_)(blocker))
       }
       .map(Dualshock.codec.decode(_))
       // .map {
