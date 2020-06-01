@@ -8,6 +8,13 @@ import cats.implicits._
 import scodec.interop.cats._
 import shapeless.ops.hlist.Prepend
 import shapeless.ops.hlist.Split
+import shapeless.HList
+import shapeless.::
+import shapeless.HNil
+import shapeless.Nat
+import com.kubukoz.dualshock4s.Key.Bumper.NotPressed
+import com.kubukoz.dualshock4s.Key.Bumper.Pressed
+import scodec.Attempt
 
 final case class Dualshock(keys: Keys /*, touch: Touch, motion: Motion, info: Info */ )
 
@@ -44,21 +51,6 @@ object Dualshock {
 
     val xoxo = "action buttons" | sizedList(4, digital).imap(_.toHList)(_.toSized[List]).as[XOXO]
 
-    import shapeless._
-
-    val keys2: Codec[Keys] = {
-
-      val x = (l3 :: r3).flatAppend {
-        case _ :: _ =>
-          (xoxo :: arrows) :: digital :: digital
-      }
-
-      val _ = x
-      (??? : Codec[Keys])
-    }
-
-    val _ = keys2
-
     def bracketed[Prefix, Inner <: HList, Suffix, Merged <: HList, Prepended <: HList, MergedLength <: Nat](
       prefix: Codec[Prefix],
       inner: Codec[Inner],
@@ -71,16 +63,18 @@ object Dualshock {
       implicit prepend: Prepend.Aux[Merged, Inner, Prepended],
       splitInstance: Split.Aux[Prepended, MergedLength, Merged, Inner]
     ): Codec[Prepended] =
-      (prefix :: inner :: suffix).imap { case a :: b :: c :: HNil => merge(a, c) ::: b } { prepended =>
-        val (merged, b) = prepended.split[MergedLength]
-        val (a, c) = split(merged)
+      (prefix :: inner :: suffix).imap {
+        case a :: b :: c :: HNil =>
+          merge(a, c) ::: b
+      } { prepended =>
+        val ((a, c), b) = prepended.split[MergedLength].leftMap(split)
         a :: b :: c :: HNil
       }
 
-    val keys =
-      (bracketed(
+    def sticks[Between <: HList](between: Codec[Between]): Codec[Stick :: Stick :: Between] =
+      bracketed(
         l3 :: r3,
-        xoxo :: arrows,
+        between,
         ("right stick press" | digital) :: ("left stick press" | digital)
       ) {
         case ((leftAnalogs :: rightAnalogs), (r3Press :: l3Press :: HNil)) =>
@@ -91,7 +85,44 @@ object Dualshock {
           val rightAnalogs = r3.x :: r3.y :: HNil
 
           (leftAnalogs :: rightAnalogs, r3.pressed :: l3.pressed :: HNil)
-      } :+ ("options" | digital) :+ ("share" | digital)).as[Keys]
+      }
+
+    def bumperCodec(on: Boolean): Codec[Bumper] =
+      either(
+        provide(on),
+        analog.unit(Analog(0)) ~> provide(Bumper.NotPressed),
+        analog.as[Bumper.Pressed]
+      ).imap(_.merge)(_.fold(Left(NotPressed), Pressed(_).asRight))
+
+    def bumpers[Between <: HList](betweenCodec: Codec[Between]): Codec[Bumper :: Bumper :: Between] = {
+      val prefix = ("R2" | digital) :: ("L2" | digital)
+
+      prefix
+        .consume {
+          case r2Pressed :: l2Pressed :: HNil =>
+            betweenCodec :: bumperCodec(l2Pressed.on) :: bumperCodec(r2Pressed.on)
+        } {
+          case _ :: l2 :: r2 :: HNil =>
+            r2.isOn :: l2.isOn :: HNil
+        }
+        .imap {
+          case between :: l2 :: r2 :: HNil =>
+            l2 :: r2 :: between
+        } {
+          case l2 :: r2 :: between =>
+            between :: l2 :: r2 :: HNil
+        }
+    }
+
+    val extras = "counter, tpad, ps button: todo" | byte.unit(0)
+
+    val keys = {
+      sticks(between = xoxo :: arrows) ::: {
+        ("options" | digital) ::
+          ("share" | digital) ::
+          bumpers(betweenCodec = ("R1" | digital) :: ("L1" | digital) <~ extras)
+      }
+    }.as[Keys]
 
     (header ~> keys).as[Dualshock]
   }
@@ -101,6 +132,21 @@ object Key {
   final case class Digital(on: Boolean)
   final case class Analog(value: Byte)
   final case class Stick(pressed: Digital, x: Analog, y: Analog)
+
+  sealed trait Bumper extends Product with Serializable {
+
+    def isOn: Digital = Digital(fold(false, _ => true))
+
+    def fold[A](notPressed: => A, pressed: Analog => A): A = this match {
+      case NotPressed        => notPressed
+      case Pressed(strength) => pressed(strength)
+    }
+  }
+
+  object Bumper {
+    case object NotPressed extends Bumper
+    final case class Pressed(strength: Analog) extends Bumper
+  }
 
   object Stick {
     import shapeless._
@@ -134,7 +180,11 @@ final case class Keys(
   arrows: Key.Arrows,
   //meta
   options: Key.Digital,
-  share: Key.Digital
+  share: Key.Digital,
+  l2: Key.Bumper,
+  r2: Key.Bumper,
+  r1: Key.Digital,
+  l1: Key.Digital
 )
 
 final case class Touch()

@@ -52,13 +52,14 @@ object Main extends IOApp {
       .map(Dualshock.codec.decode(_))
       .map {
         _.map { result =>
-          result.map(d => (d, result.remainder.take(8).toBin))
+          result.map(d => (d, result.remainder.take(8).splitAt(4).bimap(_.toInt(), _.toInt())))
         }
       }
       .metered(10.millis)
       // .map(_.toOption.get.value._1.keys.xoxo.toString())
       // .changes
       .debug()
+      .takeWhile(!_.toOption.get.value._1.keys.xoxo.circle.on)
       .compile
       .drain
       .as(ExitCode.Success)
