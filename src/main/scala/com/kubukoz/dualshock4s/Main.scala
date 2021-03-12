@@ -104,9 +104,10 @@ object Main extends IOApp {
         }
       }
       .map(_.toOption.get.value._1)
-      .metered(10.millis)
+      // .metered(10.millis)
       .takeWhile(!_.keys.xoxo.circle.on)
       .map(_.keys)
+      .map(ds => (ds.xoxo, ds.arrows))
       .map(_.toString())
       .changes
       .showLinesStdOut
