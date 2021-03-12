@@ -17,24 +17,19 @@ inThisBuild(
 def crossPlugin(x: sbt.librarymanagement.ModuleID) = compilerPlugin(x.cross(CrossVersion.full))
 
 val compilerPlugins = List(
-  crossPlugin("org.typelevel" % "kind-projector" % "0.11.0"),
-  crossPlugin("com.github.cb372" % "scala-typed-holes" % "0.1.3"),
-  crossPlugin("com.kubukoz" % "better-tostring" % "0.2.2"),
-  compilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
+  crossPlugin("com.kubukoz" % "better-tostring" % "0.2.8")
 )
 
 val commonSettings = Seq(
-  scalaVersion := "2.13.2",
+  scalaVersion := "3.0.0-RC1",
   scalacOptions --= Seq("-Xfatal-warnings"),
   name := "dualshock4s",
-  updateOptions := updateOptions.value.withGigahorse(false),
   libraryDependencies ++= Seq(
-    "org.typelevel" %% "cats-effect" % "2.1.3",
+    "org.typelevel" %% "cats-effect" % "3.0.0-RC2",
     "org.hid4java" % "hid4java" % "0.5.0",
-    "org.scodec" %% "scodec-cats" % "1.0.0",
-    "org.scodec" %% "scodec-stream" % "2.0.0",
-    "co.fs2" %% "fs2-io" % "2.3.0",
-    "org.scalatest" %% "scalatest" % "3.1.0" % Test
+    "org.scodec" %% "scodec-cats" % "1.1.0-RC1",
+    "org.scodec" %% "scodec-stream" % "3.0-91-50ae289",
+    "co.fs2" %% "fs2-io" % "3.0.0-M9"
   ) ++ compilerPlugins
 )
 
