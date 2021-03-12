@@ -91,7 +91,9 @@ object Key {
   final case class Analog(value: Byte)
   final case class Stick(pressed: Digital, x: Analog, y: Analog)
 
-  sealed trait Bumper extends Product with Serializable {
+  enum Bumper {
+    case NotPressed
+    case Pressed(strength: Analog)
 
     def isOn: Digital = Digital(fold(false, _ => true))
 
@@ -104,9 +106,6 @@ object Key {
   }
 
   object Bumper {
-    case object NotPressed extends Bumper
-    final case class Pressed(strength: Analog) extends Bumper
-
     val fromEither: Either[Unit, Analog] => Bumper = _.fold(_ => NotPressed, Pressed.apply)
   }
 
@@ -116,20 +115,20 @@ object Key {
 
   }
 
-  sealed trait Arrows extends Product with Serializable
+  enum Arrows {
+    case Neither
+    case Left
+    case Up
+    case Right
+    case Down
+    case UpLeft
+    case DownLeft
+    case DownRight
+    case UpRight
+  }
 
   object Arrows {
-    case object Neither extends Arrows
-    case object Left extends Arrows
-    case object Up extends Arrows
-    case object Right extends Arrows
-    case object Down extends Arrows
-    case object UpLeft extends Arrows
-    case object DownLeft extends Arrows
-    case object DownRight extends Arrows
-    case object UpRight extends Arrows
-
-    implicit val codec: Codec[Arrows] = "arrows" | mappedEnum(
+    given Codec[Arrows] = "arrows" | mappedEnum(
       uint4,
       Arrows.Up -> 0,
       Arrows.UpRight -> 1,
@@ -169,11 +168,8 @@ final case class Motion()
 final case class Info(headphones: Info.Headphones)
 
 object Info {
-  sealed trait Headphones extends Product with Serializable
-
-  object Headphones {
-    case object Connected extends Headphones
-    case object Disconnected extends Headphones
+  enum Headphones {
+    case Connected extends Headphones
+    case Disconnected extends Headphones
   }
-
 }

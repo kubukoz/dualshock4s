@@ -12,35 +12,63 @@ import scala.concurrent.duration._
 import cats.effect.Sync
 import fs2.Pipe
 import java.util.concurrent.TimeUnit
+import scala.util.chaining._
+
+trait HID[F[_]] {
+  def getDevice(vendorId: Int, productId: Int): Resource[F, Device[F]]
+}
+
+object HID {
+
+  def instance[F[_]: Sync]: Resource[F, HID[F]] = Resource
+    .make(Sync[F].delay {
+      HidManager.getHidServices()
+    })(services => Sync[F].delay(services.shutdown()))
+    .map { services =>
+      new HID[F] {
+        def getDevice(vendorId: Int, productId: Int): Resource[F, Device[F]] = {
+          val findDevice = Sync[F]
+            .delay(Option(services.getHidDevice(vendorId, productId, null)))
+            .flatMap(_.liftTo[F](new Throwable("Device not found")))
+
+          Resource
+            .make(findDevice)(device => Sync[F].delay(device.close()))
+            .map(Device.fromRaw)
+        }
+      }
+    }
+
+}
+
+trait Device[F[_]] {
+  def read(bufferSize: Int): fs2.Stream[F, BitVector]
+}
+
+object Device {
+
+  def fromRaw[F[_]: Sync](device: HidDevice): Device[F] = new Device[F] {
+
+    def read(bufferSize: Int): fs2.Stream[F, BitVector] = Stream
+      .eval {
+        Sync[F].delay {
+          Array.fill[Byte](bufferSize)(0)
+        }
+      }
+      .flatMap { buffer =>
+        val loadBuffer = Sync[F].blocking(device.read(buffer))
+        val readBuffer = Sync[F].delay(BitVector(buffer))
+
+        Stream.repeatEval(loadBuffer *> readBuffer)
+      }
+
+  }
+
+}
 
 object Main extends IOApp {
 
   val vendorId = Integer.parseInt("54c", 16) //1356
   val productId = Integer.parseInt("9cc", 16) //2508
-
-  val hidServices: Resource[IO, HidServices] = Resource.make(IO {
-    HidManager.getHidServices()
-  })(services => IO(services.shutdown()))
-
-  def useDevice(services: HidServices): Resource[IO, HidDevice] = {
-    val findDevice =
-      IO(Option(services.getHidDevice(vendorId, productId, null)))
-        .flatMap(IO.fromOption(_)(new Throwable("Device not found")))
-
-    Resource.make(findDevice)(device => IO(device.close()))
-  }
-
-  def readDevice(device: HidDevice): fs2.Stream[IO, BitVector] =
-    Stream
-      .eval(IO {
-        Array.fill[Byte](64)(0)
-      })
-      .flatMap { buffer =>
-        val loadBuffer = IO.blocking(device.read(buffer))
-        val readBuffer = IO(BitVector(buffer))
-
-        Stream.repeatEval(loadBuffer *> readBuffer)
-      }
 
   def retryExponentially[F[_]: Temporal: Console, A]: Pipe[F, A, A] = {
     val factor = 1.2
@@ -66,13 +94,13 @@ object Main extends IOApp {
   def run(args: List[String]): IO[ExitCode] =
     fs2
       .Stream
-      .resource(hidServices)
-      .flatMap((useDevice _).andThen(Stream.resource(_).through(retryExponentially)))
-      .flatMap(readDevice(_))
+      .resource(HID.instance[IO])
+      .flatMap(_.getDevice(vendorId, productId).pipe(Stream.resource).pipe(retryExponentially))
+      .flatMap(_.read(64))
       .map(Dualshock.codec.decode(_))
       .map {
         _.map { result =>
-          result.map(d => (d, result.remainder.take(8).splitAt(4).bimap(_.toInt(), _.toInt())))
+          result.map(ds4 => (ds4, result.remainder.take(8).splitAt(4).bimap(_.toInt(), _.toInt())))
         }
       }
       .map(_.toOption.get.value._1)
