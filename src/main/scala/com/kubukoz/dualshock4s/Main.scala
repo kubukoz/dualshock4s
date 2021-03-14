@@ -11,10 +11,10 @@ import java.util.concurrent.TimeUnit
 import scala.util.chaining._
 import com.kubukoz.hid4s._
 
-object Main extends IOApp {
+object Main extends IOApp.Simple {
 
-  val vendorId = Integer.parseInt("54c", 16) //1356
-  val productId = Integer.parseInt("9cc", 16) //2508
+  val vendorId = 0x54c
+  val productId = 0x9cc
 
   def retryExponentially[F[_]: Temporal: Console, A]: Pipe[F, A, A] = {
     val factor = 1.2
@@ -37,9 +37,8 @@ object Main extends IOApp {
     go(_, 10, 1.second)
   }
 
-  def run(args: List[String]): IO[ExitCode] =
-    fs2
-      .Stream
+  def run: IO[Unit] =
+    Stream
       .resource(HID.instance[IO])
       .flatMap(_.getDevice(vendorId, productId).pipe(Stream.resource).pipe(retryExponentially))
       .flatMap(_.read(64))
@@ -50,7 +49,7 @@ object Main extends IOApp {
         }
       }
       .map(_.toOption.get.value._1)
-      // .metered(10.millis)
+      .metered(10.millis)
       .takeWhile(!_.keys.xoxo.circle.on)
       .map(_.keys)
       .map(ds => (ds.xoxo, ds.arrows))
@@ -59,6 +58,5 @@ object Main extends IOApp {
       .showLinesStdOut
       .compile
       .drain
-      .as(ExitCode.Success)
 
 }

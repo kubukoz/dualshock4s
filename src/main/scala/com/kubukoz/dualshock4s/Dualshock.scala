@@ -14,7 +14,7 @@ final case class Dualshock(keys: Keys /*, touch: Touch, motion: Motion, info: In
 
 object Dualshock {
 
-  implicit val codec: Codec[Dualshock] = {
+  given codec: Codec[Dualshock] = {
     val header = "constant 1 byte" | constant(bin"00000001")
 
     val analog = byte.as[Analog]
