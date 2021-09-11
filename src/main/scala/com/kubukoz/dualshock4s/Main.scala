@@ -37,25 +37,55 @@ object Main extends IOApp.Simple {
     go(_, 10, 1.second)
   }
 
+  enum Event {
+    case Cross
+    case Square
+    case Triangle
+    case Circle
+
+    def toCommand: String = this match {
+      case Cross    => "s"
+      case Square   => "j"
+      case Triangle => "f 20"
+      case Circle   => "d"
+    }
+
+  }
+
+  object Event {
+
+    given cats.Eq[Event] = cats.Eq.fromUniversalEquals
+
+    def fromXOXO(xoxo: XOXO): Option[Event] = List(xoxo.cross, xoxo.square, xoxo.triangle, xoxo.circle).zipWithIndex.collectFirst {
+      case (v, index) if v.on =>
+        Event.fromOrdinal(index)
+    }
+
+  }
+
   def run: IO[Unit] =
     Stream
       .resource(HID.instance[IO])
       .flatMap(_.getDevice(vendorId, productId).pipe(Stream.resource).pipe(retryExponentially))
       .flatMap(_.read(64))
       .map(Dualshock.codec.decode(_))
-      .map {
-        _.map { result =>
-          result.map(ds4 => (ds4, result.remainder.take(8).splitAt(4).bimap(_.toInt(), _.toInt())))
-        }
-      }
-      .map(_.toOption.get.value._1)
-      .metered(10.millis)
-      .takeWhile(!_.keys.xoxo.circle.on)
-      .map(_.keys)
-      .map(ds => (ds.xoxo, ds.arrows))
-      .map(_.toString())
+      .map(_.toEither.map(_.value.keys.xoxo).toOption.get)
+      .map(Event.fromXOXO)
       .changes
-      .showLinesStdOut
+      // .debug()
+      .unNone
+      .map(_.toCommand)
+      // .map {
+      //   _.map { result =>
+      //     result.map(ds4 => (ds4, result.remainder.take(8).splitAt(4).bimap(_.toInt(), _.toInt())))
+      //   }
+      // }
+      // .map(_.toOption.get.value._1)
+      // .metered(10.millis)
+      // .takeWhile(!_.keys.xoxo.circle.on)
+      // .map(_.keys)
+      // .map(ds => (ds.xoxo, ds.arrows))
+      .debug()
       .compile
       .drain
 

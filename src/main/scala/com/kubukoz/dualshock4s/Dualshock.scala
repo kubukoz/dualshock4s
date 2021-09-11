@@ -9,6 +9,7 @@ import scodec.interop.cats._
 import com.kubukoz.dualshock4s.Key.Bumper.NotPressed
 import com.kubukoz.dualshock4s.Key.Bumper.Pressed
 import scodec.Attempt
+import cats.Eq
 
 final case class Dualshock(keys: Keys /*, touch: Touch, motion: Motion, info: Info */ )
 
@@ -128,6 +129,7 @@ object Key {
   }
 
   object Arrows {
+
     given Codec[Arrows] = "arrows" | mappedEnum(
       uint4,
       Arrows.Up -> 0,
@@ -146,6 +148,10 @@ object Key {
 }
 
 final case class XOXO(triangle: Key.Digital, circle: Key.Digital, cross: Key.Digital, square: Key.Digital)
+
+object XOXO {
+  given Eq[XOXO] = Eq.fromUniversalEquals
+}
 
 final case class Keys(
   l3: Key.Stick,
@@ -168,8 +174,10 @@ final case class Motion()
 final case class Info(headphones: Info.Headphones)
 
 object Info {
+
   enum Headphones {
     case Connected extends Headphones
     case Disconnected extends Headphones
   }
+
 }
