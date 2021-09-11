@@ -39,7 +39,7 @@ object Dualshock {
       (
         l3 :: r3 :: between :: ("right stick press" | digital) :: ("left stick press" | digital)
       ).imap { (l3_, r3_, between_, rightStick, leftStick) =>
-        Stick.fromAnalogs(l3_)(leftStick) *: Stick.fromAnalogs(r3_)(rightStick) *: between_
+        Stick.fromAnalogs.tupled(l3_)(leftStick) *: Stick.fromAnalogs.tupled(r3_)(rightStick) *: between_
       } { case l3 *: r3 *: between_ =>
         val leftAnalogs = (l3.x, l3.y)
         val rightAnalogs = (r3.x, r3.y)
