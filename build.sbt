@@ -30,8 +30,12 @@ val commonSettings = Seq(
     "org.scodec" %% "scodec-cats" % "1.1.0",
     "org.scodec" %% "scodec-stream" % "3.0.2",
     "co.fs2" %% "fs2-io" % "3.1.2"
-  ) ++ compilerPlugins
+  ) ++ compilerPlugins,
+  Compile / doc / sources := Nil
 )
 
 val dualshock4s =
-  project.in(file(".")).settings(commonSettings)
+  project
+    .in(file("."))
+    .settings(commonSettings)
+    .enablePlugins(JavaAppPackaging)
