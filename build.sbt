@@ -17,21 +17,22 @@ inThisBuild(
 def crossPlugin(x: sbt.librarymanagement.ModuleID) = compilerPlugin(x.cross(CrossVersion.full))
 
 val compilerPlugins = List(
-  crossPlugin("com.kubukoz" % "better-tostring" % "0.3.6")
+  crossPlugin("org.polyvariant" % "better-tostring" % "0.3.15")
 )
 
 val commonSettings = Seq(
-  scalaVersion := "3.0.1",
+  scalaVersion := "3.1.2",
   scalacOptions --= Seq("-Xfatal-warnings"),
   name := "dualshock4s",
   libraryDependencies ++= Seq(
     "org.typelevel" %% "cats-effect" % "3.2.7",
-    "org.hid4java" % "hid4java" % "0.5.0",
+    "org.hid4java" % "hid4java" % "0.7.0",
     "org.scodec" %% "scodec-cats" % "1.1.0",
     "org.scodec" %% "scodec-stream" % "3.0.2",
     "co.fs2" %% "fs2-io" % "3.1.2"
   ) ++ compilerPlugins,
-  Compile / doc / sources := Nil
+  Compile / doc / sources := Nil,
+  resolvers += Resolver.mavenLocal
 )
 
 val dualshock4s =
