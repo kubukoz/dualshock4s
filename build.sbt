@@ -25,7 +25,6 @@ val commonSettings = Seq(
   scalacOptions --= Seq("-Xfatal-warnings"),
   name := "dualshock4s",
   libraryDependencies ++= Seq(
-    "io.chrisdavenport" %% "process" % "0.0.2",
     "org.typelevel" %% "cats-effect" % "3.2.7",
     "org.hid4java" % "hid4java" % "0.7.0",
     "org.scodec" %% "scodec-cats" % "1.1.0",

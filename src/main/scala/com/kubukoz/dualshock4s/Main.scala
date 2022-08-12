@@ -11,7 +11,6 @@ import scodec.bits._
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration._
 import scala.util.chaining._
-import io.chrisdavenport.process.ChildProcess
 import scala.concurrent.duration._
 
 object Main extends IOApp.Simple {
@@ -85,15 +84,12 @@ object Main extends IOApp.Simple {
 
   }
 
-  import io.chrisdavenport.process.syntax.all._
-
-  val hidproxy: Stream[cats.effect.IO, BitVector] =
-    Stream.eval(ChildProcess.impl[IO].spawn(process"/Users/kubukoz/projects/hidproxy/result/bin/hidproxy")).flatMap { proc =>
-      proc
-        .stdout
-        .groupWithin(64, 1.second)
-        .map(bytes => BitVector(bytes.toByteBuffer))
-    }
+  val stdin: Stream[cats.effect.IO, BitVector] =
+    fs2
+      .io
+      .stdin[IO](64)
+      .groupWithin(64, 1.second)
+      .map(bytes => BitVector(bytes.toByteBuffer))
 
   val hidapi = Stream
     .resource(HID.instance[IO])
@@ -102,7 +98,7 @@ object Main extends IOApp.Simple {
 
   def run: IO[Unit] =
     // hidapi
-    hidproxy
+    stdin
       .map(Dualshock.codec.decode(_))
       .map(_.toEither.map(_.value.keys).toOption.get)
       .map(Event.fromKeys)
