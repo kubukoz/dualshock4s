@@ -2,14 +2,17 @@ package com.kubukoz.dualshock4s
 
 import cats.effect._
 import cats.effect.std.Console
-import fs2.Stream
 import cats.implicits._
-import scodec.bits._
-import scala.concurrent.duration._
-import fs2.Pipe
-import java.util.concurrent.TimeUnit
-import scala.util.chaining._
 import com.kubukoz.hid4s._
+import fs2.Pipe
+import fs2.Stream
+import scodec.bits._
+
+import java.util.concurrent.TimeUnit
+import scala.concurrent.duration._
+import scala.util.chaining._
+import io.chrisdavenport.process.ChildProcess
+import scala.concurrent.duration._
 
 object Main extends IOApp.Simple {
 
@@ -38,16 +41,28 @@ object Main extends IOApp.Simple {
   }
 
   enum Event {
-    case Cross
-    case Square
-    case Triangle
-    case Circle
+    case Cross, Square, Triangle, Circle, R1
+
+    def toAction: Action = this match {
+      case Cross    => Action.Skip
+      case Square   => Action.Jump
+      case Triangle => Action.FastForward(20)
+      case Circle   => Action.Drop
+      case R1       => Action.Switch
+    }
+
+  }
+
+  enum Action {
+    case Skip, Jump, Drop, Switch
+    case FastForward(len: Int)
 
     def toCommand: String = this match {
-      case Cross    => "s"
-      case Square   => "j"
-      case Triangle => "f 20"
-      case Circle   => "d"
+      case Skip             => "s"
+      case Jump             => "j"
+      case FastForward(len) => s"f $len"
+      case Drop             => "d"
+      case Switch           => "w"
     }
 
   }
@@ -56,25 +71,45 @@ object Main extends IOApp.Simple {
 
     given cats.Eq[Event] = cats.Eq.fromUniversalEquals
 
-    def fromXOXO(xoxo: XOXO): Option[Event] = List(xoxo.cross, xoxo.square, xoxo.triangle, xoxo.circle).zipWithIndex.collectFirst {
-      case (v, index) if v.on =>
-        Event.fromOrdinal(index)
-    }
+    def fromKeys(keys: Keys): Option[Event] =
+      List(
+        keys.xoxo.cross -> Event.Cross,
+        keys.xoxo.square -> Event.Square,
+        keys.xoxo.triangle -> Event.Triangle,
+        keys.xoxo.circle -> Event.Circle,
+        keys.r1 -> Event.R1
+      ).collectFirst {
+        case (v, event) if v.on =>
+          event
+      }
 
   }
 
+  import io.chrisdavenport.process.syntax.all._
+
+  val hidproxy: Stream[cats.effect.IO, BitVector] =
+    Stream.eval(ChildProcess.impl[IO].spawn(process"/Users/kubukoz/projects/hidproxy/result/bin/hidproxy")).flatMap { proc =>
+      proc
+        .stdout
+        .groupWithin(64, 1.second)
+        .map(bytes => BitVector(bytes.toByteBuffer))
+    }
+
+  val hidapi = Stream
+    .resource(HID.instance[IO])
+    .flatMap(_.getDevice(vendorId, productId).pipe(Stream.resource).pipe(retryExponentially))
+    .flatMap(_.read(64))
+
   def run: IO[Unit] =
-    Stream
-      .resource(HID.instance[IO])
-      .flatMap(_.getDevice(vendorId, productId).pipe(Stream.resource).pipe(retryExponentially))
-      .flatMap(_.read(64))
+    // hidapi
+    hidproxy
       .map(Dualshock.codec.decode(_))
-      .map(_.toEither.map(_.value.keys.xoxo).toOption.get)
-      .map(Event.fromXOXO)
+      .map(_.toEither.map(_.value.keys).toOption.get)
+      .map(Event.fromKeys)
       .changes
       // .debug()
       .unNone
-      .map(_.toCommand)
+      .map(_.toAction.toCommand)
       // .map {
       //   _.map { result =>
       //     result.map(ds4 => (ds4, result.remainder.take(8).splitAt(4).bimap(_.toInt(), _.toInt())))
