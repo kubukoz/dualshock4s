@@ -97,8 +97,8 @@ object Main extends IOApp.Simple {
     .flatMap(_.read(64))
 
   def run: IO[Unit] =
-    // hidapi
-    stdin
+    hidapi
+      // stdin
       .map(Dualshock.codec.decode(_))
       .map(_.toEither.map(_.value.keys).toOption.get)
       .map(Event.fromKeys)
