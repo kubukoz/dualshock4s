@@ -27,7 +27,7 @@ object Dualshock {
     val r3 = "right stick position" | axes
 
     def arrow[A <: Arrows](f: Arrows.type => A)(bin: BitVector): Codec[A] =
-      s"Arrow.${f(Arrows)}" | (constant(bin) ~> provide(f(Arrows)))
+      s"Arrow.${f(Arrows)}" | constant(bin) ~> provide(f(Arrows))
 
     val arrows = Codec[Arrows]
 
@@ -157,9 +157,9 @@ final case class Keys(
   l3: Key.Stick,
   r3: Key.Stick,
   xoxo: XOXO,
-  //arrows
+  // arrows
   arrows: Key.Arrows,
-  //meta
+  // meta
   options: Key.Digital,
   share: Key.Digital,
   l2: Key.Bumper,

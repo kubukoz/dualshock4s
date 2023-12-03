@@ -1,23 +1,17 @@
 package com.kubukoz.hid4s
 
-import cats.effect.Resource
-import cats.effect.Sync
-import cats.effect.MonadCancel
-import cats.effect.std.Console
 import org.hid4java.HidManager
 import org.hid4java.HidServices
 import org.hid4java.HidDevice
+import cats.effect.Sync
+import cats.effect.Resource
+import cats.effect.MonadCancel
 import cats.implicits._
-import scodec.bits.BitVector
-import fs2.Stream
+import cats.effect.std.Console
 import scala.jdk.CollectionConverters._
+import scodec.bits.BitVector
 
-trait HID[F[_]] {
-  def getDevices: F[List[DeviceDescriptor[F]]]
-  def getDevice(vendorId: Int, productId: Int): Resource[F, Device[F]]
-}
-
-object HID {
+trait HIDPlatform {
 
   def instance[F[_]: Sync: Console]: Resource[F, HID[F]] = Resource
     .make(Sync[F].delay {
@@ -42,27 +36,21 @@ object HID {
 
 }
 
-trait DeviceDescriptor[F[_]] {
-  def open: Resource[F, Device[F]]
-  def describe: F[Unit]
-}
+trait DeviceDescriptorPlatform {
 
-object DeviceDescriptor {
-  def fromRaw[F[_]: Sync: Console](device: HidDevice)(using MonadCancel[F, _]): DeviceDescriptor[F] = new DeviceDescriptor[F]{
+  def fromRaw[F[_]: Sync: Console](device: HidDevice)(using MonadCancel[F, _]): DeviceDescriptor[F] = new DeviceDescriptor[F] {
     val open: Resource[F, Device[F]] = Resource.pure(device).map(Device.fromRaw).onFinalize(Sync[F].delay(device.close()))
     val describe: F[Unit] = Console[F].println(device)
   }
+
 }
 
-trait Device[F[_]] {
-  def read(bufferSize: Int): fs2.Stream[F, BitVector]
-}
-
-object Device {
+trait DevicePlatform {
 
   def fromRaw[F[_]: Sync](device: HidDevice): Device[F] = new Device[F] {
 
-    def read(bufferSize: Int): fs2.Stream[F, BitVector] = Stream
+    def read(bufferSize: Int): fs2.Stream[F, BitVector] = fs2
+      .Stream
       .eval {
         Sync[F].delay {
           Array.fill[Byte](bufferSize)(0)
@@ -72,7 +60,7 @@ object Device {
         val loadBuffer = Sync[F].blocking(device.read(buffer))
         val readBuffer = Sync[F].delay(BitVector(buffer))
 
-        Stream.repeatEval(loadBuffer *> readBuffer)
+        fs2.Stream.repeatEval(loadBuffer *> readBuffer)
       }
 
   }

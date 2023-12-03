@@ -17,27 +17,43 @@ inThisBuild(
 def crossPlugin(x: sbt.librarymanagement.ModuleID) = compilerPlugin(x.cross(CrossVersion.full))
 
 val compilerPlugins = List(
-  crossPlugin("org.polyvariant" % "better-tostring" % "0.3.15")
+  crossPlugin("org.polyvariant" % "better-tostring" % "0.3.17")
 )
 
 val commonSettings = Seq(
-  scalaVersion := "3.1.2",
+  scalaVersion := "3.3.1",
   scalacOptions --= Seq("-Xfatal-warnings"),
   name := "dualshock4s",
   resolvers += Resolver.mavenLocal,
   libraryDependencies ++= Seq(
-    "org.typelevel" %% "cats-effect" % "3.2.7",
-    "org.hid4java" % "hid4java" % "develop-SNAPSHOT",
-    "org.scodec" %% "scodec-cats" % "1.1.0",
-    "org.scodec" %% "scodec-stream" % "3.0.2",
-    "co.fs2" %% "fs2-io" % "3.1.2"
+    "org.typelevel" %%% "cats-effect" % "3.5.2",
+    "co.fs2" %%% "fs2-io" % "3.9.3",
+    "co.fs2" %%% "fs2-scodec" % "3.9.3",
+    "org.scodec" %%% "scodec-cats" % "1.2.0",
+    "io.chrisdavenport" %%% "crossplatformioapp" % "0.1.0"
   ) ++ compilerPlugins,
   Compile / doc / sources := Nil,
   resolvers += Resolver.mavenLocal
 )
 
-val dualshock4s =
-  project
-    .in(file("."))
+val app =
+  crossProject(JVMPlatform, NativePlatform)
+    .crossType(CrossType.Pure)
     .settings(commonSettings)
-    .enablePlugins(JavaAppPackaging)
+    .jvmConfigure(
+      _.enablePlugins(JavaAppPackaging)
+        .settings(
+          libraryDependencies += "org.hid4java" % "hid4java" % "develop-SNAPSHOT"
+        )
+    )
+    .nativeConfigure(
+      _.settings(
+        libraryDependencies ++= Seq(
+          "com.armanbilge" %%% "epollcat" % "0.1.6"
+        )
+      )
+    )
+
+val root = project
+  .in(file("."))
+  .aggregate(app.componentProjects.map(p => p: ProjectReference): _*)
