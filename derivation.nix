@@ -1,17 +1,25 @@
-{ mkSbtDerivation, gitignore-source, which, clang, s2n-tls }:
+{ mkSbtDerivation, gitignore-source, which, clang, hidapi, sn-bindgen-cli, PATHS }:
 
 let pname = "dualshock4s"; in
 
 mkSbtDerivation {
   inherit pname;
   version = "0.1.0";
-  depsSha256 = "";
+  depsSha256 = "sha256-d44LmzlUwaviqVmpiSPmvl7aFJzsSMVMhQBbjxosoTU=";
 
   buildInputs = [ which clang ];
-  nativeBuildInputs = [ s2n-tls ];
+  nativeBuildInputs = [
+    hidapi
+    sn-bindgen-cli
+  ];
   depsWarmupCommand = ''
-    sbt compile
+    sbt appNative/compile
   '';
+  overrideDepsAttrs = final: prev: {
+    buildInputs = [ which clang ];
+    inherit (PATHS) BINDGEN_PATH HIDAPI_PATH;
+  };
+  inherit (PATHS) BINDGEN_PATH HIDAPI_PATH;
 
   src = gitignore-source.lib.gitignoreSource ./.;
 

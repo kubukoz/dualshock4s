@@ -16,19 +16,31 @@
       let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ sbt-derivation.overlays.default ];
+          overlays = [
+            sbt-derivation.overlays.default
+            (
+
+              _: _: {
+                sn-bindgen-cli = sn-bindgen.packages.${system}.default;
+              }
+            )
+          ];
+        };
+        PATHS = {
+          BINDGEN_PATH = pkgs.sn-bindgen-cli + "/bin/bindgen";
+          HIDAPI_PATH = pkgs.hidapi + "/include/hidapi/hidapi.h";
         };
       in
       {
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = [
             pkgs.hidapi
-            sn-bindgen.packages.${system}.default
+            pkgs.sn-bindgen-cli
           ];
-          BINDGEN_PATH = sn-bindgen.packages.${system}.default + "/bin/bindgen";
-          HIDAPI_PATH = pkgs.hidapi + "/include/hidapi/hidapi.h";
+
+          inherit (PATHS) BINDGEN_PATH HIDAPI_PATH;
         };
-        packages.default = pkgs.callPackage ./derivation.nix { inherit (inputs) gitignore-source; };
+        packages.default = pkgs.callPackage ./derivation.nix { inherit (inputs) gitignore-source; inherit PATHS; };
       }
     );
 }
