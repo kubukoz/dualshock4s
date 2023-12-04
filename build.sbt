@@ -1,4 +1,4 @@
-import bindgen.interface.Binding
+// import bindgen.interface.Binding
 
 inThisBuild(
   List(
@@ -33,27 +33,22 @@ val commonSettings = Seq(
   Compile / doc / sources := Nil
 )
 
-val hidapi =
-  crossProject(NativePlatform)
-    .crossType(CrossType.Pure)
-    .settings(commonSettings)
-    .settings(
-      scalacOptions ++= Seq(
-        "-Wconf:cat=unused:silent"
-      )
-    )
-    .nativeConfigure(
-      _.settings(
-        bindgenBindings := Seq(
-          Binding
-            .builder(file(sys.env("HIDAPI_PATH")), "libhidapi")
-            .withLinkName("hidapi")
-            .build
-        ),
-        bindgenBinary := file(sys.env("BINDGEN_PATH"))
-      )
-        .enablePlugins(BindgenPlugin)
-    )
+// val hidapi =
+//   crossProject(NativePlatform)
+//     .crossType(CrossType.Pure)
+//     .settings(commonSettings)
+// .nativeConfigure(
+//   _.settings(
+//     bindgenBindings := Seq(
+//       Binding
+//         .builder(file(sys.env("HIDAPI_PATH")), "libhidapi")
+//         .withLinkName("hidapi")
+//         .build
+//     ),
+//     bindgenBinary := file(sys.env("BINDGEN_PATH"))
+//   )
+//     .enablePlugins(BindgenPlugin)
+// )
 
 val app =
   crossProject(JVMPlatform, NativePlatform)
@@ -79,7 +74,7 @@ val app =
           "com.armanbilge" %%% "epollcat" % "0.1.6"
         )
       )
-        .dependsOn(hidapi.native)
+      // .dependsOn(hidapi.native)
     )
 
 val root = project

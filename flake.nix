@@ -5,10 +5,6 @@
   inputs.gitignore-source.url = "github:hercules-ci/gitignore.nix";
   inputs.gitignore-source.inputs.nixpkgs.follows = "nixpkgs";
   inputs.sn-bindgen.url = "github:indoorvivants/sn-bindgen";
-  inputs.sn-bindgen.inputs = {
-    sbt.follows = "sbt-derivation";
-    nixpkgs.follows = "nixpkgs";
-  };
 
   outputs = { self, nixpkgs, flake-utils, sbt-derivation, sn-bindgen, ... }@inputs:
     flake-utils.lib.eachDefaultSystem (
@@ -26,21 +22,21 @@
             )
           ];
         };
-        PATHS = {
-          BINDGEN_PATH = pkgs.sn-bindgen-cli + "/bin/bindgen";
-          HIDAPI_PATH = pkgs.hidapi + "/include/hidapi/hidapi.h";
-        };
+        # PATHS = {
+        #   BINDGEN_PATH = pkgs.sn-bindgen-cli + "/bin/bindgen";
+        #   HIDAPI_PATH = pkgs.hidapi + "/include/hidapi/hidapi.h";
+        # };
       in
       {
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = [
             pkgs.hidapi
-            pkgs.sn-bindgen-cli
+            # pkgs.sn-bindgen-cli
           ];
 
-          inherit (PATHS) BINDGEN_PATH HIDAPI_PATH;
+          # inherit (PATHS) BINDGEN_PATH HIDAPI_PATH;
         };
-        packages.default = pkgs.callPackage ./derivation.nix { inherit (inputs) gitignore-source; inherit PATHS; };
+        packages.default = pkgs.callPackage ./derivation.nix { inherit (inputs) gitignore-source; /* inherit PATHS;  */ };
       }
     );
 }
