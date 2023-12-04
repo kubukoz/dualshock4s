@@ -26,9 +26,6 @@ object Dualshock {
     val l3 = "left stick position" | axes
     val r3 = "right stick position" | axes
 
-    def arrow[A <: Arrows](f: Arrows.type => A)(bin: BitVector): Codec[A] =
-      s"Arrow.${f(Arrows)}" | constant(bin) ~> provide(f(Arrows))
-
     val arrows = Codec[Arrows]
 
     val digital = "binary value" | bool.as[Digital]

@@ -11,9 +11,9 @@ import scodec.bits._
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration._
 import scala.util.chaining._
-import scala.concurrent.duration._
+import io.chrisdavenport.crossplatformioapp.CrossPlatformIOApp
 
-object Main extends IOApp.Simple {
+object Main extends CrossPlatformIOApp.Simple {
 
   val vendorId = 0x54c
   val productId = 0x9cc

@@ -1,3 +1,5 @@
+import bindgen.interface.Binding
+
 inThisBuild(
   List(
     organization := "com.kubukoz",
@@ -23,23 +25,48 @@ val compilerPlugins = List(
 val commonSettings = Seq(
   scalaVersion := "3.3.1",
   scalacOptions --= Seq("-Xfatal-warnings"),
+  scalacOptions ++= Seq(
+    "-Wunused:all"
+  ),
   name := "dualshock4s",
   resolvers += Resolver.mavenLocal,
-  libraryDependencies ++= Seq(
-    "org.typelevel" %%% "cats-effect" % "3.5.2",
-    "co.fs2" %%% "fs2-io" % "3.9.3",
-    "co.fs2" %%% "fs2-scodec" % "3.9.3",
-    "org.scodec" %%% "scodec-cats" % "1.2.0",
-    "io.chrisdavenport" %%% "crossplatformioapp" % "0.1.0"
-  ) ++ compilerPlugins,
-  Compile / doc / sources := Nil,
-  resolvers += Resolver.mavenLocal
+  Compile / doc / sources := Nil
 )
+
+val hidapi =
+  crossProject(NativePlatform)
+    .crossType(CrossType.Pure)
+    .settings(commonSettings)
+    .settings(
+      scalacOptions ++= Seq(
+        "-Wconf:cat=unused:silent"
+      )
+    )
+    .nativeConfigure(
+      _.settings(
+        bindgenBindings := Seq(
+          Binding
+            .builder(file(sys.env("HIDAPI_PATH")), "libhidapi")
+            .withLinkName("hidapi")
+            .build
+        ),
+        bindgenBinary := file(sys.env("BINDGEN_PATH"))
+      )
+        .enablePlugins(BindgenPlugin)
+    )
 
 val app =
   crossProject(JVMPlatform, NativePlatform)
     .crossType(CrossType.Pure)
     .settings(commonSettings)
+    .settings(
+      libraryDependencies ++= Seq(
+        "org.typelevel" %%% "cats-effect" % "3.5.2",
+        "co.fs2" %%% "fs2-io" % "3.9.3",
+        "org.scodec" %%% "scodec-cats" % "1.2.0",
+        "io.chrisdavenport" %%% "crossplatformioapp" % "0.1.0"
+      ) ++ compilerPlugins
+    )
     .jvmConfigure(
       _.enablePlugins(JavaAppPackaging)
         .settings(
@@ -52,6 +79,7 @@ val app =
           "com.armanbilge" %%% "epollcat" % "0.1.6"
         )
       )
+        .dependsOn(hidapi.native)
     )
 
 val root = project

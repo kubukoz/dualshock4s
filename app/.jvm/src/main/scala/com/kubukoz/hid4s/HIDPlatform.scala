@@ -1,14 +1,11 @@
 package com.kubukoz.hid4s
 
 import org.hid4java.HidManager
-import org.hid4java.HidServices
 import org.hid4java.HidDevice
 import cats.effect.Sync
 import cats.effect.Resource
-import cats.effect.MonadCancel
 import cats.implicits._
 import cats.effect.std.Console
-import scala.jdk.CollectionConverters._
 import scodec.bits.BitVector
 
 trait HIDPlatform {
@@ -19,8 +16,6 @@ trait HIDPlatform {
     })(services => Sync[F].delay(services.shutdown()))
     .map { services =>
       new HID[F] {
-        def getDevices: F[List[DeviceDescriptor[F]]] =
-          Sync[F].delay(services.getAttachedHidDevices).map(_.asScala.toList.map(DeviceDescriptor.fromRaw(_)))
 
         def getDevice(vendorId: Int, productId: Int): Resource[F, Device[F]] = {
           val findDevice = Sync[F]
@@ -29,23 +24,14 @@ trait HIDPlatform {
 
           Resource
             .make(findDevice)(device => Sync[F].delay(device.close()))
-            .map(Device.fromRaw)
+            .map(DevicePlatform.fromRaw)
         }
       }
     }
 
 }
 
-trait DeviceDescriptorPlatform {
-
-  def fromRaw[F[_]: Sync: Console](device: HidDevice)(using MonadCancel[F, _]): DeviceDescriptor[F] = new DeviceDescriptor[F] {
-    val open: Resource[F, Device[F]] = Resource.pure(device).map(Device.fromRaw).onFinalize(Sync[F].delay(device.close()))
-    val describe: F[Unit] = Console[F].println(device)
-  }
-
-}
-
-trait DevicePlatform {
+object DevicePlatform {
 
   def fromRaw[F[_]: Sync](device: HidDevice): Device[F] = new Device[F] {
 
