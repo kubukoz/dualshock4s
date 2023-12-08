@@ -73,7 +73,8 @@ val app =
         libraryDependencies ++= Seq(
           "com.armanbilge" %%% "epollcat" % "0.1.6"
         ),
-        nativeLinkingOptions ++= Seq("-v")
+        nativeLinkingOptions ++= Seq("-v"),
+        nativeClang := file(sys.env("CC"))
       )
       // .dependsOn(hidapi.native)
     )
