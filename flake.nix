@@ -22,10 +22,10 @@
             )
           ];
         };
-        # PATHS = {
-        #   BINDGEN_PATH = pkgs.sn-bindgen-cli + "/bin/bindgen";
-        #   HIDAPI_PATH = pkgs.hidapi + "/include/hidapi/hidapi.h";
-        # };
+        PATHS = {
+          # BINDGEN_PATH = pkgs.sn-bindgen-cli + "/bin/bindgen";
+          HIDAPI_PATH = pkgs.hidapi + "/include/hidapi/hidapi.h";
+        };
       in
       {
         devShells.default = pkgs.mkShell {
@@ -34,9 +34,9 @@
             # pkgs.sn-bindgen-cli
           ];
 
-          # inherit (PATHS) BINDGEN_PATH HIDAPI_PATH;
+          inherit (PATHS) /* BINDGEN_PATH */ HIDAPI_PATH;
         };
-        packages.default = pkgs.callPackage ./derivation.nix { inherit (inputs) gitignore-source; /* inherit PATHS;  */ };
+        packages.default = pkgs.callPackage ./derivation.nix { inherit (inputs) gitignore-source; inherit PATHS; };
       }
     );
 }

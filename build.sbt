@@ -72,7 +72,8 @@ val app =
       _.settings(
         libraryDependencies ++= Seq(
           "com.armanbilge" %%% "epollcat" % "0.1.6"
-        )
+        ),
+        nativeLinkingOptions ++= Seq("-v")
       )
       // .dependsOn(hidapi.native)
     )
