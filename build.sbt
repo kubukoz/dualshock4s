@@ -82,7 +82,7 @@ val app =
           }
           if (isLinux)
             Seq("-v", "-lhidapi-hidraw")
-          else Seq("-v", "-llhidapi")
+          else Seq("-v", "-lhidapi")
         }
         // nativeClang := file {
         //   import sys.process._
