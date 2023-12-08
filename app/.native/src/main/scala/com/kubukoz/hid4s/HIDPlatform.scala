@@ -63,17 +63,17 @@ object DevicePlatform {
 
 }
 
-object Demo extends IOApp.Simple {
+// object Demo extends IOApp.Simple {
 
 
-  val vendorId = 0x54c
-  val productId = 0x9cc
+//   val vendorId = 0x54c
+//   val productId = 0x9cc
 
-  def run: IO[Unit] =
-    HID.instance[IO].use { hid =>
-      hid.getDevice(vendorId,productId).use { device =>
-        device.read(64).take(10).debug().compile.drain
-      }
-    }
+//   def run: IO[Unit] =
+//     HID.instance[IO].use { hid =>
+//       hid.getDevice(vendorId,productId).use { device =>
+//         device.read(64).take(10).debug().compile.drain
+//       }
+//     }
 
-}
+// }
