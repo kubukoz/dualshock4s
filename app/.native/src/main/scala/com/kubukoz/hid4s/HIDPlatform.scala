@@ -1,6 +1,8 @@
 package com.kubukoz.hid4s
 
 import cats.effect.Resource
+import cats.effect.IO
+import cats.effect.IOApp
 import cats.effect.Sync
 import cats.implicits._
 import libhidapi.all._
@@ -58,5 +60,16 @@ object DevicePlatform {
     }
 
   }
+
+}
+
+object Demo extends IOApp.Simple {
+
+  def run: IO[Unit] =
+    HID.instance[IO].use { hid =>
+      hid.getDevice(0x054c, 0x05c4).use { device =>
+        device.read(64).take(10).debug().compile.drain
+      }
+    }
 
 }
