@@ -28,14 +28,14 @@
         };
       in
       {
-        devShells.default = pkgs.mkShell {
-          nativeBuildInputs = [
-            pkgs.hidapi
-            # pkgs.sn-bindgen-cli
-          ];
+        # devShells.default = pkgs.mkShell {
+        #   nativeBuildInputs = [
+        #     pkgs.hidapi
+        #     # pkgs.sn-bindgen-cli
+        #   ];
 
-          inherit (PATHS) /* BINDGEN_PATH */ HIDAPI_PATH;
-        };
+        #   inherit (PATHS) /* BINDGEN_PATH */ HIDAPI_PATH;
+        # };
         packages.default = pkgs.callPackage ./derivation.nix { inherit (inputs) gitignore-source; inherit PATHS; };
       }
     );
