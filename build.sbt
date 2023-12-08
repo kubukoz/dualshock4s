@@ -74,7 +74,7 @@ val app =
           "com.armanbilge" %%% "epollcat" % "0.1.6"
         ),
         nativeLinkingOptions ++= Seq("-v"),
-        nativeClang := file(sys.env("NIX_CC"))
+        nativeClang := file(sys.env("NIX_CC") + "/bin/" + sys.env("CC"))
       )
       // .dependsOn(hidapi.native)
     )
