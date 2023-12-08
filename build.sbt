@@ -75,7 +75,15 @@ val app =
         libraryDependencies ++= Seq(
           "com.armanbilge" %%% "epollcat" % "0.1.6"
         ),
-        nativeLinkingOptions ++= Seq("-v", "-lhidapi-hidraw")
+        nativeLinkingOptions ++= {
+          val isLinux = {
+            import sys.process._
+            "uname".!!.trim == "Linux"
+          }
+          if (isLinux)
+            Seq("-v", "-lhidapi-hidraw")
+          else Seq("-v")
+        }
         // nativeClang := file {
         //   import sys.process._
         //   "which cc".!!.trim

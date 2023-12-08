@@ -65,9 +65,13 @@ object DevicePlatform {
 
 object Demo extends IOApp.Simple {
 
+
+  val vendorId = 0x54c
+  val productId = 0x9cc
+
   def run: IO[Unit] =
     HID.instance[IO].use { hid =>
-      hid.getDevice(0x054c, 0x05c4).use { device =>
+      hid.getDevice(vendorId,productId).use { device =>
         device.read(64).take(10).debug().compile.drain
       }
     }
