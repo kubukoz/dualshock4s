@@ -5,11 +5,11 @@
         "systems": "systems"
       },
       "locked": {
-        "lastModified": 1694529238,
-        "narHash": "sha256-zsNZZGTGnMOf9YpHKJqMSsa0dXbfmxeoJ7xHlrt+xmY=",
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
         "owner": "numtide",
         "repo": "flake-utils",
-        "rev": "ff7b65b44d01cf9ba6a71320833626af21126384",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
         "type": "github"
       },
       "original": {
@@ -33,33 +33,13 @@
         "type": "github"
       }
     },
-    "gitignore-source": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1694102001,
-        "narHash": "sha256-vky6VPK1n1od6vXbqzOXnekrQpTL4hbPAwUhT5J9c9E=",
-        "owner": "hercules-ci",
-        "repo": "gitignore.nix",
-        "rev": "9e21c80adf67ebcb077d75bd5e7d724d21eeafd6",
-        "type": "github"
-      },
-      "original": {
-        "owner": "hercules-ci",
-        "repo": "gitignore.nix",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1701635917,
-        "narHash": "sha256-3ESjixv2PDLTNoPs9liQSuIHmWGXxnjRbXKCfC4laJI=",
+        "lastModified": 1732323384,
+        "narHash": "sha256-uj0i/+QsDcyAkZ62sKuEtyqsMg6cTRgCislkg7sE6pU=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "c8fe76d8e809521865c20d30195c74fb7ddcdbfd",
+        "rev": "41153887f033e82e9d2b3470282d6b5c1246c201",
         "type": "github"
       },
       "original": {
@@ -87,7 +67,6 @@
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
-        "gitignore-source": "gitignore-source",
         "nixpkgs": "nixpkgs",
         "sbt-derivation": "sbt-derivation",
         "sn-bindgen": "sn-bindgen"
@@ -123,15 +102,16 @@
         "systems": "systems_2"
       },
       "locked": {
-        "lastModified": 1700919886,
-        "narHash": "sha256-rLEDZSw2lyJDvkVWqGIPrbgYF8h7K5VfWdk51XOESgY=",
+        "lastModified": 1732323088,
+        "narHash": "sha256-WVxq2kjdUxmAYWcpS4c6C0ZEwrswaqzzTUQb7J6WKbY=",
         "owner": "indoorvivants",
         "repo": "sn-bindgen",
-        "rev": "c4210693865090095ad52fab11a753992bf486b4",
+        "rev": "aba4e7610114e0287913ac289886396c1d1b6b7f",
         "type": "github"
       },
       "original": {
         "owner": "indoorvivants",
+        "ref": "pull/312/head",
         "repo": "sn-bindgen",
         "type": "github"
       }

@@ -1,4 +1,4 @@
-{ mkSbtDerivation, gitignore-source, which, clang, hidapi, sn-bindgen-cli, PATHS }:
+{ mkSbtDerivation, which, clang, hidapi, sn-bindgen-cli, PATHS }:
 
 let pname = "dualshock4s"; in
 
@@ -21,7 +21,7 @@ mkSbtDerivation {
   };
   inherit (PATHS) BINDGEN_PATH HIDAPI_PATH;
 
-  src = gitignore-source.lib.gitignoreSource ./.;
+  src = ./.;
 
   buildPhase = ''
     sbt nativeLink
