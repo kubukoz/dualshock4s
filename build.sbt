@@ -42,18 +42,18 @@ val hidapi =
         "-Wconf:cat=unused:silent"
       )
     )
-    .nativeConfigure(
-      _.settings(
-        bindgenBindings := Seq(
-          Binding
-            .builder(file(sys.env("HIDAPI_PATH")), "libhidapi")
-            .withLinkName("hidapi")
-            .build
-        ),
-        bindgenBinary := file(sys.env("BINDGEN_PATH"))
-      )
-        .enablePlugins(BindgenPlugin)
-    )
+    // .nativeConfigure(
+    //   _.settings(
+    //     bindgenBindings := Seq(
+    //       Binding
+    //         .builder(file(sys.env("HIDAPI_PATH")), "libhidapi")
+    //         .withLinkName("hidapi")
+    //         .build
+    //     ),
+    //     bindgenBinary := file(sys.env("BINDGEN_PATH"))
+    //   )
+    //     .enablePlugins(BindgenPlugin)
+    // )
 
 val app =
   crossProject(JVMPlatform, NativePlatform)

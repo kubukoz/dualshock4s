@@ -97,27 +97,30 @@ object Main extends CrossPlatformIOApp.Simple {
     .flatMap(_.read(64))
 
   def run: IO[Unit] =
-    hidapi
-      // stdin
-      .map(Dualshock.codec.decode(_))
-      .map(_.toEither.map(_.value.keys).toOption.get)
-      .map(Event.fromKeys)
-      .changes
-      // .debug()
-      .unNone
-      .map(_.toAction.toCommand)
-      // .map {
-      //   _.map { result =>
-      //     result.map(ds4 => (ds4, result.remainder.take(8).splitAt(4).bimap(_.toInt(), _.toInt())))
-      //   }
-      // }
-      // .map(_.toOption.get.value._1)
-      // .metered(10.millis)
-      // .takeWhile(!_.keys.xoxo.circle.on)
-      // .map(_.keys)
-      // .map(ds => (ds.xoxo, ds.arrows))
-      .debug()
-      .compile
-      .drain
+    HID.instance[IO].flatMap(_.getDevice(0x1c75, 0x020b)).use { device =>
+      device.read(64).map(_.toHex).debug().compile.drain
+    }
+    // hidapi
+    //   // stdin
+    //   .map(Dualshock.codec.decode(_))
+    //   .map(_.toEither.map(_.value.keys).toOption.get)
+    //   .map(Event.fromKeys)
+    //   .changes
+    //   // .debug()
+    //   .unNone
+    //   .map(_.toAction.toCommand)
+    //   // .map {
+    //   //   _.map { result =>
+    //   //     result.map(ds4 => (ds4, result.remainder.take(8).splitAt(4).bimap(_.toInt(), _.toInt())))
+    //   //   }
+    //   // }
+    //   // .map(_.toOption.get.value._1)
+    //   // .metered(10.millis)
+    //   // .takeWhile(!_.keys.xoxo.circle.on)
+    //   // .map(_.keys)
+    //   // .map(ds => (ds.xoxo, ds.arrows))
+    //   .debug()
+    //   .compile
+    //   .drain
 
 }

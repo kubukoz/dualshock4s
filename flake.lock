@@ -123,11 +123,11 @@
         "systems": "systems_2"
       },
       "locked": {
-        "lastModified": 1700919886,
-        "narHash": "sha256-rLEDZSw2lyJDvkVWqGIPrbgYF8h7K5VfWdk51XOESgY=",
+        "lastModified": 1730314878,
+        "narHash": "sha256-AGRNCFb/AUN7n0yT6RNXhx+1GGKxNU4sH88BJeeOuiM=",
         "owner": "indoorvivants",
         "repo": "sn-bindgen",
-        "rev": "c4210693865090095ad52fab11a753992bf486b4",
+        "rev": "9383b36214d365c41dbe0f1bb5bbd6685b0e88a5",
         "type": "github"
       },
       "original": {
