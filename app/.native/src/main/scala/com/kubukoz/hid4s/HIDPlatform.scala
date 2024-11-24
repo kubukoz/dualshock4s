@@ -1,6 +1,8 @@
 package com.kubukoz.hid4s
 
 import cats.effect.Resource
+import cats.effect.IO
+import cats.effect.IOApp
 import cats.effect.Sync
 import cats.implicits._
 import libhidapi.all._
@@ -60,3 +62,18 @@ object DevicePlatform {
   }
 
 }
+
+// object Demo extends IOApp.Simple {
+
+
+//   val vendorId = 0x54c
+//   val productId = 0x9cc
+
+//   def run: IO[Unit] =
+//     HID.instance[IO].use { hid =>
+//       hid.getDevice(vendorId,productId).use { device =>
+//         device.read(64).take(10).debug().compile.drain
+//       }
+//     }
+
+// }

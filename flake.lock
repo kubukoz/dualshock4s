@@ -33,13 +33,28 @@
         "type": "github"
       }
     },
+    "flake-utils_3": {
+      "locked": {
+        "lastModified": 1667395993,
+        "narHash": "sha256-nuEHfE/LcWyuSWnS8t12N1wc105Qtau+/OdUAjtQ0rA=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "5aed5285a952e0b949eb3ba02c12fa4fcfef535f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1732323384,
-        "narHash": "sha256-uj0i/+QsDcyAkZ62sKuEtyqsMg6cTRgCislkg7sE6pU=",
+        "lastModified": 1732474137,
+        "narHash": "sha256-Qz2CO6aUlni6iczfqtRKAaZV2+HECKkBn+tq623Ovew=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "41153887f033e82e9d2b3470282d6b5c1246c201",
+        "rev": "0b27578d20f17dc9cfc089c2c39ee49d6648dce2",
         "type": "github"
       },
       "original": {
@@ -64,12 +79,50 @@
         "type": "github"
       }
     },
+    "nixpkgs_3": {
+      "locked": {
+        "lastModified": 1732322696,
+        "narHash": "sha256-G/3mKjjWyZdns9TQmvg27n4nsfLtAztioW7cO7GMS8w=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "80dd5c18b78cac12304774e317f162bae94a1172",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
         "nixpkgs": "nixpkgs",
         "sbt-derivation": "sbt-derivation",
         "sn-bindgen": "sn-bindgen"
+      }
+    },
+    "sbt": {
+      "inputs": {
+        "flake-utils": "flake-utils_3",
+        "nixpkgs": [
+          "sn-bindgen",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1698464090,
+        "narHash": "sha256-Pnej7WZIPomYWg8f/CZ65sfW85IfIUjYhphMMg7/LT0=",
+        "owner": "zaninime",
+        "repo": "sbt-derivation",
+        "rev": "6762cf2c31de50efd9ff905cbcc87239995a4ef9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zaninime",
+        "ref": "master",
+        "repo": "sbt-derivation",
+        "type": "github"
       }
     },
     "sbt-derivation": {
@@ -93,25 +146,20 @@
     },
     "sn-bindgen": {
       "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "sbt": [
-          "sbt-derivation"
-        ],
+        "nixpkgs": "nixpkgs_3",
+        "sbt": "sbt",
         "systems": "systems_2"
       },
       "locked": {
-        "lastModified": 1732323088,
+        "lastModified": 1732349468,
         "narHash": "sha256-WVxq2kjdUxmAYWcpS4c6C0ZEwrswaqzzTUQb7J6WKbY=",
         "owner": "indoorvivants",
         "repo": "sn-bindgen",
-        "rev": "aba4e7610114e0287913ac289886396c1d1b6b7f",
+        "rev": "b5999bb1f3be573dc1a9f2171a2dd4c8142527d4",
         "type": "github"
       },
       "original": {
         "owner": "indoorvivants",
-        "ref": "pull/312/head",
         "repo": "sn-bindgen",
         "type": "github"
       }

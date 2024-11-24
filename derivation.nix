@@ -1,29 +1,28 @@
-{ mkSbtDerivation, which, clang, hidapi, sn-bindgen-cli, PATHS }:
+{ mkSbtDerivation,  which, clang, hidapi, PATHS }:
 
 let pname = "dualshock4s"; in
 
 mkSbtDerivation {
   inherit pname;
   version = "0.1.0";
-  depsSha256 = "sha256-d44LmzlUwaviqVmpiSPmvl7aFJzsSMVMhQBbjxosoTU=";
+  depsSha256 = "sha256-psIQwKogdVsSYlRQXWtP9UXn+pruZq70MYIi3Y0u7pA=";
 
-  buildInputs = [ which clang ];
-  nativeBuildInputs = [
-    hidapi
-    sn-bindgen-cli
-  ];
+  buildInputs = [ which clang hidapi ];
+
   depsWarmupCommand = ''
     sbt appNative/compile
   '';
   overrideDepsAttrs = final: prev: {
-    buildInputs = [ which clang ];
-    inherit (PATHS) BINDGEN_PATH HIDAPI_PATH;
+    inherit (PATHS) /* BINDGEN_PATH */ HIDAPI_PATH;
   };
-  inherit (PATHS) BINDGEN_PATH HIDAPI_PATH;
+  inherit (PATHS) /* BINDGEN_PATH  */ HIDAPI_PATH;
 
   src = ./.;
 
   buildPhase = ''
+    echo "which ld"
+    which ld
+    env
     sbt nativeLink
   '';
 
