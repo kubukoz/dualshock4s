@@ -5,11 +5,11 @@
         "systems": "systems"
       },
       "locked": {
-        "lastModified": 1694529238,
-        "narHash": "sha256-zsNZZGTGnMOf9YpHKJqMSsa0dXbfmxeoJ7xHlrt+xmY=",
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
         "owner": "numtide",
         "repo": "flake-utils",
-        "rev": "ff7b65b44d01cf9ba6a71320833626af21126384",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
         "type": "github"
       },
       "original": {
@@ -48,33 +48,13 @@
         "type": "github"
       }
     },
-    "gitignore-source": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1694102001,
-        "narHash": "sha256-vky6VPK1n1od6vXbqzOXnekrQpTL4hbPAwUhT5J9c9E=",
-        "owner": "hercules-ci",
-        "repo": "gitignore.nix",
-        "rev": "9e21c80adf67ebcb077d75bd5e7d724d21eeafd6",
-        "type": "github"
-      },
-      "original": {
-        "owner": "hercules-ci",
-        "repo": "gitignore.nix",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1701635917,
-        "narHash": "sha256-3ESjixv2PDLTNoPs9liQSuIHmWGXxnjRbXKCfC4laJI=",
+        "lastModified": 1732474137,
+        "narHash": "sha256-Qz2CO6aUlni6iczfqtRKAaZV2+HECKkBn+tq623Ovew=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "c8fe76d8e809521865c20d30195c74fb7ddcdbfd",
+        "rev": "0b27578d20f17dc9cfc089c2c39ee49d6648dce2",
         "type": "github"
       },
       "original": {
@@ -101,11 +81,11 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1701655116,
-        "narHash": "sha256-Td6D22dzjxELzBMfdfAEKwKA63xxwi9q+HuvrJfduyk=",
+        "lastModified": 1732322696,
+        "narHash": "sha256-G/3mKjjWyZdns9TQmvg27n4nsfLtAztioW7cO7GMS8w=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "72061433dd3711fe9a06b177323e4ffd4a81847a",
+        "rev": "80dd5c18b78cac12304774e317f162bae94a1172",
         "type": "github"
       },
       "original": {
@@ -117,7 +97,6 @@
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
-        "gitignore-source": "gitignore-source",
         "nixpkgs": "nixpkgs",
         "sbt-derivation": "sbt-derivation",
         "sn-bindgen": "sn-bindgen"
@@ -172,11 +151,11 @@
         "systems": "systems_2"
       },
       "locked": {
-        "lastModified": 1700919886,
-        "narHash": "sha256-rLEDZSw2lyJDvkVWqGIPrbgYF8h7K5VfWdk51XOESgY=",
+        "lastModified": 1732349468,
+        "narHash": "sha256-WVxq2kjdUxmAYWcpS4c6C0ZEwrswaqzzTUQb7J6WKbY=",
         "owner": "indoorvivants",
         "repo": "sn-bindgen",
-        "rev": "c4210693865090095ad52fab11a753992bf486b4",
+        "rev": "b5999bb1f3be573dc1a9f2171a2dd4c8142527d4",
         "type": "github"
       },
       "original": {

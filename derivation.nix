@@ -1,4 +1,4 @@
-{ mkSbtDerivation, gitignore-source, which, clang, hidapi, PATHS, /* sn-bindgen-cli*/ }:
+{ mkSbtDerivation,  which, clang, hidapi, PATHS }:
 
 let pname = "dualshock4s"; in
 
@@ -8,10 +8,7 @@ mkSbtDerivation {
   depsSha256 = "sha256-psIQwKogdVsSYlRQXWtP9UXn+pruZq70MYIi3Y0u7pA=";
 
   buildInputs = [ which clang hidapi ];
-  nativeBuildInputs = [
-    # hidapi
-    # sn-bindgen-cli
-  ];
+
   depsWarmupCommand = ''
     sbt appNative/compile
   '';
@@ -20,7 +17,7 @@ mkSbtDerivation {
   };
   inherit (PATHS) /* BINDGEN_PATH  */ HIDAPI_PATH;
 
-  src = gitignore-source.lib.gitignoreSource ./.;
+  src = ./.;
 
   buildPhase = ''
     echo "which ld"
