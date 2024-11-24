@@ -2,7 +2,7 @@
   inputs.nixpkgs.url = "github:nixos/nixpkgs";
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.sbt-derivation.url = "github:zaninime/sbt-derivation";
-  inputs.sn-bindgen.url = "github:indoorvivants/sn-bindgen?ref=pull/312/head";
+  inputs.sn-bindgen.url = "github:indoorvivants/sn-bindgen";
   inputs.sn-bindgen.inputs = {
     sbt.follows = "sbt-derivation";
     nixpkgs.follows = "nixpkgs";

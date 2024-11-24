@@ -102,16 +102,15 @@
         "systems": "systems_2"
       },
       "locked": {
-        "lastModified": 1732323088,
+        "lastModified": 1732349468,
         "narHash": "sha256-WVxq2kjdUxmAYWcpS4c6C0ZEwrswaqzzTUQb7J6WKbY=",
         "owner": "indoorvivants",
         "repo": "sn-bindgen",
-        "rev": "aba4e7610114e0287913ac289886396c1d1b6b7f",
+        "rev": "b5999bb1f3be573dc1a9f2171a2dd4c8142527d4",
         "type": "github"
       },
       "original": {
         "owner": "indoorvivants",
-        "ref": "pull/312/head",
         "repo": "sn-bindgen",
         "type": "github"
       }
