@@ -12,11 +12,15 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.duration._
 import scala.util.chaining._
 import io.chrisdavenport.crossplatformioapp.CrossPlatformIOApp
+import cats.kernel.Eq
 
 object Main extends CrossPlatformIOApp.Simple {
 
   val vendorId = 0x54c
   val productId = 0x9cc
+  // dualsense
+  // val vendorId = 0x54c
+  // val productId = 0xce6
 
   def retryExponentially[F[_]: Temporal: Console, A]: Pipe[F, A, A] = {
     val factor = 1.2
@@ -95,17 +99,21 @@ object Main extends CrossPlatformIOApp.Simple {
     .resource(HID.instance[IO])
     .flatMap(_.getDevice(vendorId, productId).pipe(Stream.resource).pipe(retryExponentially))
     .flatMap(_.read(64))
+    .metered(100.millis)
 
   def run: IO[Unit] =
     hidapi
+      .changes(
+        using Eq.fromUniversalEquals
+      )
       // stdin
-      .map(Dualshock.codec.decode(_))
-      .map(_.toEither.map(_.value.keys).toOption.get)
-      .map(Event.fromKeys)
-      .changes
-      // .debug()
-      .unNone
-      .map(_.toAction.toCommand)
+      // .map(Dualshock.codec.decode(_))
+      // .map(_.toEither.map(_.value.keys).toOption.get)
+      // .map(Event.fromKeys)
+      // .changes
+      // // .debug()
+      // .unNone
+      // .map(_.toAction.toCommand)
       // .map {
       //   _.map { result =>
       //     result.map(ds4 => (ds4, result.remainder.take(8).splitAt(4).bimap(_.toInt(), _.toInt())))

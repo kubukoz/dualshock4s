@@ -5,7 +5,7 @@ let pname = "dualshock4s"; in
 mkSbtDerivation {
   inherit pname;
   version = "0.1.0";
-  depsSha256 = "sha256-psIQwKogdVsSYlRQXWtP9UXn+pruZq70MYIi3Y0u7pA=";
+  depsSha256 = "sha256-uTKMI2s9MBmcN1fd7vyBRFYYNfHxtI/v9x951Ng5xv0=";
 
   buildInputs = [ which clang hidapi ];
 

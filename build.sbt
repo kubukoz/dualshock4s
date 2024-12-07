@@ -1,4 +1,4 @@
-// import bindgen.interface.Binding
+import bindgen.interface.Binding
 
 inThisBuild(
   List(
@@ -35,22 +35,21 @@ val commonSettings = Seq(
   Compile / doc / sources := Nil
 )
 
-// val hidapi =
-//   crossProject(NativePlatform)
-//     .crossType(CrossType.Pure)
-//     .settings(commonSettings)
-// .nativeConfigure(
-//   _.settings(
-//     bindgenBindings := Seq(
-//       Binding
-//         .builder(file(sys.env("HIDAPI_PATH")), "libhidapi")
-//         .withLinkName("hidapi")
-//         .build
-//     ),
-//     bindgenBinary := file(sys.env("BINDGEN_PATH"))
-//   )
-//     .enablePlugins(BindgenPlugin)
-// )
+val hidapi =
+  crossProject(NativePlatform)
+    .crossType(CrossType.Pure)
+    .settings(commonSettings)
+    .nativeConfigure(
+      _.settings(
+        bindgenBindings := Seq(
+          Binding(file(sys.env("HIDAPI_PATH")), "libhidapi")
+            .withLinkName("hidapi")
+            .withMultiFile(true)
+        ),
+        bindgenBinary := file(sys.env("BINDGEN_PATH"))
+      )
+        .enablePlugins(BindgenPlugin)
+    )
 
 val app =
   crossProject(JVMPlatform, NativePlatform)

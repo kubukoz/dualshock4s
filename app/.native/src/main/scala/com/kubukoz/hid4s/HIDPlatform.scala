@@ -1,11 +1,11 @@
 package com.kubukoz.hid4s
 
-import cats.effect.Resource
 import cats.effect.IO
 import cats.effect.IOApp
+import cats.effect.Resource
 import cats.effect.Sync
-import cats.implicits._
-import libhidapi.all._
+import cats.implicits.*
+import libhidapi.all.*
 import scodec.bits.BitVector
 
 import scalanative.unsafe.*
@@ -64,7 +64,6 @@ object DevicePlatform {
 }
 
 // object Demo extends IOApp.Simple {
-
 
 //   val vendorId = 0x54c
 //   val productId = 0x9cc

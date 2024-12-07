@@ -7,6 +7,7 @@ import cats.effect.Resource
 import cats.implicits._
 import cats.effect.std.Console
 import scodec.bits.BitVector
+import scala.jdk.CollectionConverters.*
 
 trait HIDPlatform {
 
