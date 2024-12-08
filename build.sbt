@@ -38,19 +38,6 @@ val hidapi =
       _.settings(
         bindgenBindings := Seq(
           Binding(file(sys.env("HIDAPI_PATH")), "libhidapi")
-            .withLinkName {
-              val isLinux = {
-                import sys.process._
-                "uname".!!.trim == "Linux"
-              }
-
-              // hidraw can contain stale reports
-              // which doesn't play well with backpressuring with `.metered`.
-              // libusb is more pull-based, so it'll be easier to work with (similar to hidapi on mac).
-              if (isLinux) "hidapi-libusb"
-              // if (isLinux) "hidapi-hidraw"
-              else "hidapi"
-            }
         ),
         bindgenBinary := file(sys.env("BINDGEN_PATH")),
         scalacOptions += "-Wconf:msg=unused import:s",
@@ -83,7 +70,23 @@ val app =
       _.settings(
         libraryDependencies ++= Seq(
           "com.armanbilge" %%% "epollcat" % "0.1.6"
-        )
+        ),
+        nativeLinkingOptions ++= {
+          val isLinux = {
+            import sys.process._
+            "uname".!!.trim == "Linux"
+          }
+
+          val hidapiLinkName =
+            // hidraw can contain stale reports
+            // which doesn't play well with backpressuring with `.metered`.
+            // libusb is more pull-based, so it'll be easier to work with (similar to hidapi on mac).
+            if (isLinux) "hidapi-libusb"
+            // if (isLinux) "hidapi-hidraw"
+            else "hidapi"
+
+          Seq(s"-l$hidapiLinkName")
+        },
       )
         .dependsOn(hidapi.native)
     )
