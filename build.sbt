@@ -10,9 +10,9 @@ inThisBuild(
         "kubukoz",
         "Jakub Kozłowski",
         "kubukoz@gmail.com",
-        url("https://kubukoz.com")
+        url("https://kubukoz.com"),
       )
-    )
+    ),
   )
 )
 
@@ -32,7 +32,7 @@ val commonSettings = Seq(
   ),
   name := "dualshock4s",
   resolvers += Resolver.mavenLocal,
-  Compile / doc / sources := Nil
+  Compile / doc / sources := Nil,
 )
 
 val hidapi =
@@ -49,12 +49,16 @@ val hidapi =
                 "uname".!!.trim == "Linux"
               }
 
-              if (isLinux) "hidapi-hidraw"
+              // hidraw can contain stale reports
+              // which doesn't play well with backpressuring with `.metered`.
+              // libusb is more pull-based, so it'll be easier to work with (similar to hidapi on mac).
+              if (isLinux) "hidapi-libusb"
+              // if (isLinux) "hidapi-hidraw"
               else "hidapi"
             }
         ),
         bindgenBinary := file(sys.env("BINDGEN_PATH")),
-        scalacOptions += "-Wconf:msg=unused import:s"
+        scalacOptions += "-Wconf:msg=unused import:s",
       )
         .enablePlugins(BindgenPlugin)
     )
@@ -67,14 +71,17 @@ val app =
       libraryDependencies ++= Seq(
         "org.typelevel" %%% "cats-effect" % "3.5.2",
         "co.fs2" %%% "fs2-io" % "3.9.3",
+        "org.scodec" %%% "scodec-core" % "2.2.2",
         "org.scodec" %%% "scodec-cats" % "1.2.0",
-        "io.chrisdavenport" %%% "crossplatformioapp" % "0.1.0"
+        "io.chrisdavenport" %%% "crossplatformioapp" % "0.1.0",
+        "com.monovore" %%% "decline-effect" % "2.4.1",
       ) ++ compilerPlugins
     )
     .jvmConfigure(
       _.enablePlugins(JavaAppPackaging)
         .settings(
-          libraryDependencies += "org.hid4java" % "hid4java" % "0.8.0"
+          libraryDependencies += "org.hid4java" % "hid4java" % "0.8.0",
+          fork := true,
         )
     )
     .nativeConfigure(

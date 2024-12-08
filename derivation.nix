@@ -7,7 +7,7 @@ let
 in mkSbtDerivation {
   inherit pname;
   version = "0.1.0";
-  depsSha256 = "sha256-qUnzkxuOxLKoikC2toou0Wm8rj8p9EEl6xNob8qfLPY=";
+  depsSha256 = "sha256-HE/948BRd7UI5p/4bwaUAnj0Y9sL5jnAiTaN25BRlgE=";
   inherit buildInputs;
 
   depsWarmupCommand = ''
@@ -22,7 +22,7 @@ in mkSbtDerivation {
   src = ./.;
 
   buildPhase = ''
-    sbt nativeLink
+    sbt appNative/nativeLink
   '';
 
   installPhase = ''
