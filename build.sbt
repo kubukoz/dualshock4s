@@ -26,7 +26,6 @@ val commonSettings = Seq(
   scalacOptions ++= Seq(
     "-Wunused:all"
   ),
-  name := "dualshock4s",
   resolvers += Resolver.mavenLocal,
   Compile / doc / sources := Nil,
 )
