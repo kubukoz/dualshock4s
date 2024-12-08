@@ -27,6 +27,6 @@ in mkSbtDerivation {
 
   installPhase = ''
     mkdir -p $out/bin
-    cp app/native/target/scala-3.5.2/dualshock4s-out $out/bin/$pname
+    cp app/native/target/scala-3.5.2/app-out $out/bin/$pname
   '';
 }
