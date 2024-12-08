@@ -33,7 +33,7 @@ object Main extends CrossPlatformIOApp.Simple {
           val newDelay = FiniteDuration((currentDelay * factor).toMillis, TimeUnit.MILLISECONDS)
 
           val showRetrying = Stream.exec(
-            Console[F].println(
+            Console[F].errorln(
               s"Device not available, retrying ${attemptsRemaining - 1} more times in $newDelay..."
             )
           )

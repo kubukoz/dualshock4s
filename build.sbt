@@ -49,6 +49,9 @@ val hidapi =
                 "uname".!!.trim == "Linux"
               }
 
+              // hidraw can contain stale reports
+              // which doesn't play well with backpressuring with `.metered`.
+              // libusb is more pull-based, so it'll be easier to work with (similar to hidapi on mac).
               if (isLinux) "hidapi-libusb"
               // if (isLinux) "hidapi-hidraw"
               else "hidapi"
