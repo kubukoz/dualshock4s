@@ -74,7 +74,7 @@ val app =
     .jvmConfigure(
       _.enablePlugins(JavaAppPackaging)
         .settings(
-          libraryDependencies += "org.hid4java" % "hid4java" % "develop-SNAPSHOT"
+          libraryDependencies += "org.hid4java" % "hid4java" % "0.8.0"
         )
     )
     .nativeConfigure(
@@ -88,4 +88,4 @@ val app =
 
 val root = project
   .in(file("."))
-  .aggregate(app.componentProjects.map(p => p: ProjectReference): _*)
+  .aggregate(List(app, hidapi).flatMap(_.componentProjects).map(p => p: ProjectReference): _*)
