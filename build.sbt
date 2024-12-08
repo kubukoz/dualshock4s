@@ -2,7 +2,7 @@ import bindgen.interface.Binding
 
 inThisBuild(
   List(
-    organization := "com.kubukoz",
+    organization := "com.kubukoz.dualshock4s",
     homepage := Some(url("https://github.com/kubukoz/dualshock4s")),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     developers := List(
@@ -96,3 +96,4 @@ val app =
 val root = project
   .in(file("."))
   .aggregate(List(app, hidapi).flatMap(_.componentProjects).map(p => p: ProjectReference): _*)
+  .settings(publish / skip := true)
