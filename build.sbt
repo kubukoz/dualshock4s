@@ -67,6 +67,7 @@ val app =
       libraryDependencies ++= Seq(
         "org.typelevel" %%% "cats-effect" % "3.5.2",
         "co.fs2" %%% "fs2-io" % "3.9.3",
+        "org.scodec" %%% "scodec-core" % "2.3.2",
         "org.scodec" %%% "scodec-cats" % "1.2.0",
         "io.chrisdavenport" %%% "crossplatformioapp" % "0.1.0"
       ) ++ compilerPlugins
@@ -74,7 +75,8 @@ val app =
     .jvmConfigure(
       _.enablePlugins(JavaAppPackaging)
         .settings(
-          libraryDependencies += "org.hid4java" % "hid4java" % "0.8.0"
+          libraryDependencies += "org.hid4java" % "hid4java" % "0.8.0",
+          fork := true
         )
     )
     .nativeConfigure(

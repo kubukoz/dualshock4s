@@ -12,15 +12,16 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.duration._
 import scala.util.chaining._
 import io.chrisdavenport.crossplatformioapp.CrossPlatformIOApp
-import cats.kernel.Eq
 
 object Main extends CrossPlatformIOApp.Simple {
 
-  val vendorId = 0x54c
-  val productId = 0x9cc
-  // dualsense
+  // ds4
   // val vendorId = 0x54c
-  // val productId = 0xce6
+  // val productId = 0x9cc
+
+  // dualsense
+  val vendorId = 0x54c
+  val productId = 0xce6
 
   def retryExponentially[F[_]: Temporal: Console, A]: Pipe[F, A, A] = {
     val factor = 1.2
@@ -80,7 +81,7 @@ object Main extends CrossPlatformIOApp.Simple {
         keys.xoxo.square -> Event.Square,
         keys.xoxo.triangle -> Event.Triangle,
         keys.xoxo.circle -> Event.Circle,
-        keys.r1 -> Event.R1
+        keys.r1 -> Event.R1,
       ).collectFirst {
         case (v, event) if v.on =>
           event
@@ -103,24 +104,21 @@ object Main extends CrossPlatformIOApp.Simple {
 
   def run: IO[Unit] =
     hidapi
-      .changes(
-        using Eq.fromUniversalEquals
-      )
       // stdin
-      // .map(Dualshock.codec.decode(_))
-      // .map(_.toEither.map(_.value.keys).toOption.get)
-      // .map(Event.fromKeys)
-      // .changes
+      .map(Dualsense.codec.decode(_))
+      .map(_.toEither.map(_.value.keys).toOption.get)
+      .map(Event.fromKeys)
+      .changes
       // // .debug()
-      // .unNone
-      // .map(_.toAction.toCommand)
+      .unNone
+      .map(_.toAction.toCommand)
       // .map {
       //   _.map { result =>
       //     result.map(ds4 => (ds4, result.remainder.take(8).splitAt(4).bimap(_.toInt(), _.toInt())))
       //   }
       // }
       // .map(_.toOption.get.value._1)
-      // .metered(10.millis)
+      // .metered(100.millis)
       // .takeWhile(!_.keys.xoxo.circle.on)
       // .map(_.keys)
       // .map(ds => (ds.xoxo, ds.arrows))
