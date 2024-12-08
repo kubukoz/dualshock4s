@@ -74,6 +74,7 @@ val app =
         "org.scodec" %%% "scodec-core" % "2.2.2",
         "org.scodec" %%% "scodec-cats" % "1.2.0",
         "io.chrisdavenport" %%% "crossplatformioapp" % "0.1.0",
+        "com.monovore" %%% "decline-effect" % "2.4.1",
       ) ++ compilerPlugins
     )
     .jvmConfigure(

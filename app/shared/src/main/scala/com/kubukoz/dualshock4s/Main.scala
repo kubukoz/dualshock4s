@@ -12,16 +12,11 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.duration._
 import scala.util.chaining._
 import io.chrisdavenport.crossplatformioapp.CrossPlatformIOApp
+import com.monovore.decline.effect.CommandIOApp
+import com.monovore.decline.Opts
+import com.monovore.decline.Argument
 
-object Main extends CrossPlatformIOApp.Simple {
-
-  // ds4
-  // val vendorId = 0x54c
-  // val productId = 0x9cc
-
-  // dualsense
-  val vendorId = 0x54c
-  val productId = 0xce6
+object Main extends CrossPlatformIOApp {
 
   def retryExponentially[F[_]: Temporal: Console, A]: Pipe[F, A, A] = {
     val factor = 1.2
@@ -89,6 +84,26 @@ object Main extends CrossPlatformIOApp.Simple {
 
   }
 
+  enum DeviceInfo(val vendorId: Int, val productId: Int) {
+    case Dualsense extends DeviceInfo(0x54c, 0xce6)
+    case DS4 extends DeviceInfo(0x54c, 0x9cc)
+  }
+
+  enum InputType {
+    case Stdin
+    case Hidapi
+  }
+
+  val devices = Map(
+    "ds4" -> DeviceInfo.DS4,
+    "dualsense" -> DeviceInfo.Dualsense,
+  )
+
+  val inputs = Map(
+    "stdin" -> InputType.Stdin,
+    "hidapi" -> InputType.Hidapi,
+  )
+
   val stdin: Stream[cats.effect.IO, BitVector] =
     fs2
       .io
@@ -96,33 +111,45 @@ object Main extends CrossPlatformIOApp.Simple {
       .groupWithin(64, 1.second)
       .map(bytes => BitVector(bytes.toByteBuffer))
 
-  val hidapi = Stream
+  def hidapi(device: DeviceInfo) = Stream
     .resource(HID.instance[IO])
-    .flatMap(_.getDevice(vendorId, productId).pipe(Stream.resource).pipe(retryExponentially))
+    .flatMap(_.getDevice(device.vendorId, device.productId).pipe(Stream.resource).pipe(retryExponentially))
     .flatMap(_.read(64))
-    .metered(100.millis)
 
-  def run: IO[Unit] =
-    hidapi
-      // stdin
-      .map(Dualsense.codec.decode(_))
-      .map(_.toEither.map(_.value.keys).toOption.get)
-      .map(Event.fromKeys)
-      .changes
-      .unNone
-      .map(_.toAction.toCommand)
-      // .map {
-      //   _.map { result =>
-      //     result.map(ds4 => (ds4, result.remainder.take(8).splitAt(4).bimap(_.toInt(), _.toInt())))
-      //   }
-      // }
-      // .map(_.toOption.get.value._1)
-      // .metered(100.millis)
-      // .takeWhile(!_.keys.xoxo.circle.on)
-      // .map(_.keys)
-      // .map(ds => (ds.xoxo, ds.arrows))
-      .debug()
-      .compile
-      .drain
+  def run(args: List[String]): IO[ExitCode] = {
+    val opts = (
+      Opts
+        .option("device", "The device to look for", "d")(
+          using Argument.fromMap("device", devices)
+        )
+        .withDefault(DeviceInfo.Dualsense),
+      Opts
+        .option("input", "The input method", "i")(
+          using Argument.fromMap("input", inputs)
+        )
+        .withDefault(InputType.Hidapi),
+      Opts
+        .option[FiniteDuration]("rate", "The polling rate (only used with hidapi)", "r")
+        .withDefault(100.millis),
+    ).mapN { (device, inputType, pollingRate) =>
+      val input = inputType match {
+        case InputType.Stdin  => stdin
+        case InputType.Hidapi => hidapi(device).metered(pollingRate)
+      }
+
+      input.through(loop).compile.drain.as(ExitCode.Success)
+    }
+
+    CommandIOApp.run[IO]("dualshock4s-cli", "Welcome to the Dualshock4s CLI")(opts, args)
+  }
+
+  val loop: fs2.Pipe[IO, BitVector, Nothing] = _.map(Dualsense.codec.decode(_))
+    .map(_.toEither.map(_.value.keys).toOption.get)
+    .map(Event.fromKeys)
+    .changes
+    .unNone
+    .map(_.toAction.toCommand)
+    .debug()
+    .drain
 
 }
