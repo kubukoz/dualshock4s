@@ -7,7 +7,7 @@ let
 in mkSbtDerivation {
   inherit pname;
   version = "0.1.0";
-  depsSha256 = "sha256-HE/948BRd7UI5p/4bwaUAnj0Y9sL5jnAiTaN25BRlgE=";
+  depsSha256 = "sha256-waSisVIN06mIhCZ3oLFhlJ76Du70y/ImBGTExcxSM6I=";
   inherit buildInputs;
 
   depsWarmupCommand = ''
