@@ -25,7 +25,7 @@ val compilerPlugins = List(
 )
 
 val commonSettings = Seq(
-  scalaVersion := "3.3.1",
+  scalaVersion := "3.5.2",
   scalacOptions --= Seq("-Xfatal-warnings"),
   scalacOptions ++= Seq(
     "-Wunused:all"
@@ -37,23 +37,31 @@ val commonSettings = Seq(
 
 val hidapi =
   crossProject(NativePlatform)
-    .crossType(CrossType.Pure)
+    .crossType(CrossType.Full)
     .settings(commonSettings)
     .nativeConfigure(
       _.settings(
         bindgenBindings := Seq(
           Binding(file(sys.env("HIDAPI_PATH")), "libhidapi")
-            .withLinkName("hidapi")
-            .withMultiFile(true)
+            .withLinkName {
+              val isLinux = {
+                import sys.process._
+                "uname".!!.trim == "Linux"
+              }
+
+              if (isLinux) "hidapi-hidraw"
+              else "hidapi"
+            }
         ),
-        bindgenBinary := file(sys.env("BINDGEN_PATH"))
+        bindgenBinary := file(sys.env("BINDGEN_PATH")),
+        scalacOptions += "-Wconf:msg=unused import:s"
       )
         .enablePlugins(BindgenPlugin)
     )
 
 val app =
   crossProject(JVMPlatform, NativePlatform)
-    .crossType(CrossType.Pure)
+    .crossType(CrossType.Full)
     .settings(commonSettings)
     .settings(
       libraryDependencies ++= Seq(
@@ -73,22 +81,9 @@ val app =
       _.settings(
         libraryDependencies ++= Seq(
           "com.armanbilge" %%% "epollcat" % "0.1.6"
-        ),
-        nativeLinkingOptions ++= {
-          val isLinux = {
-            import sys.process._
-            "uname".!!.trim == "Linux"
-          }
-          if (isLinux)
-            Seq("-v", "-lhidapi-hidraw")
-          else Seq("-v", "-lhidapi")
-        }
-        // nativeClang := file {
-        //   import sys.process._
-        //   "which cc".!!.trim
-        // }
+        )
       )
-      // .dependsOn(hidapi.native)
+        .dependsOn(hidapi.native)
     )
 
 val root = project

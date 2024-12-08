@@ -1,7 +1,5 @@
 package com.kubukoz.hid4s
 
-import cats.effect.IO
-import cats.effect.IOApp
 import cats.effect.Resource
 import cats.effect.Sync
 import cats.implicits.*

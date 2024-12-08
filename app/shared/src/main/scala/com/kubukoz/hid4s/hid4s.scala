@@ -3,7 +3,6 @@ package com.kubukoz.hid4s
 import cats.effect.Resource
 
 import scodec.bits.BitVector
-import fs2.Stream
 
 trait HID[F[_]] {
   def getDevice(vendorId: Int, productId: Int): Resource[F, Device[F]]
