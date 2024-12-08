@@ -49,7 +49,8 @@ val hidapi =
                 "uname".!!.trim == "Linux"
               }
 
-              if (isLinux) "hidapi-hidraw"
+              if (isLinux) "hidapi-libusb"
+              // if (isLinux) "hidapi-hidraw"
               else "hidapi"
             }
         ),

@@ -22,7 +22,7 @@ in mkSbtDerivation {
   src = ./.;
 
   buildPhase = ''
-    sbt nativeLink
+    sbt appNative/nativeLink
   '';
 
   installPhase = ''

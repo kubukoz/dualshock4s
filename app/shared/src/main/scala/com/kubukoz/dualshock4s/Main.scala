@@ -109,7 +109,6 @@ object Main extends CrossPlatformIOApp.Simple {
       .map(_.toEither.map(_.value.keys).toOption.get)
       .map(Event.fromKeys)
       .changes
-      // // .debug()
       .unNone
       .map(_.toAction.toCommand)
       // .map {
