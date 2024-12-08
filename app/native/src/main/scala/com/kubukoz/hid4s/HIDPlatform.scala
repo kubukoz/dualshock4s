@@ -44,7 +44,7 @@ object DevicePlatform {
 
     def read(bufferSize: Int): fs2.Stream[F, BitVector] = {
       def load: F[BitVector] = Sync[F].blocking {
-        val buf = stackalloc[CUnsignedChar](64)
+        val buf = stackalloc[CUnsignedChar](64.toUInt)
 
         val mem = Array.ofDim[Byte](64)
         hid_read(device, buf, 64.toUInt)
