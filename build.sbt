@@ -2,17 +2,13 @@ import bindgen.interface.Binding
 
 inThisBuild(
   List(
+    tlBaseVersion := "0.1",
     organization := "com.kubukoz.dualshock4s",
+    startYear := Some(2020),
     homepage := Some(url("https://github.com/kubukoz/dualshock4s")),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-    developers := List(
-      Developer(
-        "kubukoz",
-        "Jakub Kozłowski",
-        "kubukoz@gmail.com",
-        url("https://kubukoz.com"),
-      )
-    ),
+    developers := List(tlGitHubDev("kubukoz", "Jakub Kozłowski")),
+    sonatypeCredentialHost := Sonatype.sonatypeLegacy,
   )
 )
 
@@ -96,4 +92,4 @@ val app =
 val root = project
   .in(file("."))
   .aggregate(List(app, hidapi).flatMap(_.componentProjects).map(p => p: ProjectReference): _*)
-  .settings(publish / skip := true)
+  .settings(publish / skip := true, sonatypeProfileName := "com.kubukoz")

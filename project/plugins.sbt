@@ -1,4 +1,5 @@
-addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.3")
+addSbtPlugin("org.typelevel" % "sbt-typelevel" % "0.7.4")
+
 addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat" % "0.1.20")
 addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.16")
 
