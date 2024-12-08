@@ -2,7 +2,7 @@ import bindgen.interface.Binding
 
 inThisBuild(
   List(
-    tlBaseVersion := "0.1",
+    tlBaseVersion := "0.2",
     organization := "com.kubukoz.dualshock4s",
     startYear := Some(2020),
     homepage := Some(url("https://github.com/kubukoz/dualshock4s")),
