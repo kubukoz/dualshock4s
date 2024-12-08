@@ -10,9 +10,9 @@ inThisBuild(
         "kubukoz",
         "Jakub Kozłowski",
         "kubukoz@gmail.com",
-        url("https://kubukoz.com")
+        url("https://kubukoz.com"),
       )
-    )
+    ),
   )
 )
 
@@ -32,7 +32,7 @@ val commonSettings = Seq(
   ),
   name := "dualshock4s",
   resolvers += Resolver.mavenLocal,
-  Compile / doc / sources := Nil
+  Compile / doc / sources := Nil,
 )
 
 val hidapi =
@@ -54,7 +54,7 @@ val hidapi =
             }
         ),
         bindgenBinary := file(sys.env("BINDGEN_PATH")),
-        scalacOptions += "-Wconf:msg=unused import:s"
+        scalacOptions += "-Wconf:msg=unused import:s",
       )
         .enablePlugins(BindgenPlugin)
     )
@@ -67,16 +67,16 @@ val app =
       libraryDependencies ++= Seq(
         "org.typelevel" %%% "cats-effect" % "3.5.2",
         "co.fs2" %%% "fs2-io" % "3.9.3",
-        "org.scodec" %%% "scodec-core" % "2.3.2",
+        "org.scodec" %%% "scodec-core" % "2.2.2",
         "org.scodec" %%% "scodec-cats" % "1.2.0",
-        "io.chrisdavenport" %%% "crossplatformioapp" % "0.1.0"
+        "io.chrisdavenport" %%% "crossplatformioapp" % "0.1.0",
       ) ++ compilerPlugins
     )
     .jvmConfigure(
       _.enablePlugins(JavaAppPackaging)
         .settings(
           libraryDependencies += "org.hid4java" % "hid4java" % "0.8.0",
-          fork := true
+          fork := true,
         )
     )
     .nativeConfigure(
