@@ -90,7 +90,11 @@ object codecs {
 object Key {
 
   final case class Digital(on: Boolean)
-  final case class Analog(value: Byte)
+
+  final case class Analog(value: Byte) {
+    override def toString: String = f"Analog(value = 0x${value & 0xff}%02x)"
+  }
+
   final case class Analog2(x: Analog, y: Analog)
 
   final case class Stick(pressed: Digital, x: Analog, y: Analog) {
