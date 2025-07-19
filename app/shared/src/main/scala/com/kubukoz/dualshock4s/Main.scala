@@ -40,30 +40,14 @@ object Main extends CrossPlatformIOApp {
   }
 
   enum Event {
-    case Cross, Square, Triangle, Circle, L1, R1
+    case Cross, Triangle, Circle, L1, R1
 
-    def toAction: Action = this match {
-      case Cross    => Action.Skip
-      case Square   => Action.Jump
-      case Triangle => Action.FastForward(20)
-      case Circle   => Action.Drop
-      case L1       => Action.Switch
-      case R1       => Action.Move
-    }
-
-  }
-
-  enum Action {
-    case Skip, Jump, Drop, Switch, Move
-    case FastForward(len: Int)
-
-    def toCommand: String = this match {
-      case Skip             => "s"
-      case Jump             => "j"
-      case FastForward(len) => s"f $len"
-      case Drop             => "d"
-      case Switch           => "w"
-      case Move             => "m"
+    def toAction: String = this match {
+      case Cross    => "s"
+      case Triangle => "f 20"
+      case Circle   => "d"
+      case L1       => "w"
+      case R1       => "m"
     }
 
   }
@@ -75,7 +59,6 @@ object Main extends CrossPlatformIOApp {
     def fromKeys(keys: Keys): Option[Event] =
       List(
         keys.xoxo.cross -> Event.Cross,
-        keys.xoxo.square -> Event.Square,
         keys.xoxo.triangle -> Event.Triangle,
         keys.xoxo.circle -> Event.Circle,
         keys.l1 -> Event.L1,
@@ -140,7 +123,16 @@ object Main extends CrossPlatformIOApp {
         case InputType.Hidapi => hidapi(device).metered(pollingRate)
       }
 
-      input.through(loop).compile.drain.as(ExitCode.Success)
+      IO.consoleForIO
+        .errorln(
+          Event
+            .values
+            .map { e =>
+              s"$e -> ${e.toAction}"
+            }
+            .mkString("Dualshock4s CLI instructions:\n", "\n", "")
+        ) *>
+        input.through(loop).compile.drain.as(ExitCode.Success)
     }
 
     CommandIOApp.run[IO]("dualshock4s-cli", "Welcome to the Dualshock4s CLI")(opts, args)
@@ -151,7 +143,7 @@ object Main extends CrossPlatformIOApp {
     .map(Event.fromKeys)
     .changes
     .unNone
-    .map(_.toAction.toCommand)
+    .map(_.toAction)
     .debug()
     .drain
 
