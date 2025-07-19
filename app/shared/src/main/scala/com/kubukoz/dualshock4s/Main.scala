@@ -40,20 +40,21 @@ object Main extends CrossPlatformIOApp {
   }
 
   enum Event {
-    case Cross, Square, Triangle, Circle, R1
+    case Cross, Square, Triangle, Circle, L1, R1
 
     def toAction: Action = this match {
       case Cross    => Action.Skip
       case Square   => Action.Jump
       case Triangle => Action.FastForward(20)
       case Circle   => Action.Drop
-      case R1       => Action.Switch
+      case L1       => Action.Switch
+      case R1       => Action.Move
     }
 
   }
 
   enum Action {
-    case Skip, Jump, Drop, Switch
+    case Skip, Jump, Drop, Switch, Move
     case FastForward(len: Int)
 
     def toCommand: String = this match {
@@ -62,6 +63,7 @@ object Main extends CrossPlatformIOApp {
       case FastForward(len) => s"f $len"
       case Drop             => "d"
       case Switch           => "w"
+      case Move             => "m"
     }
 
   }
@@ -76,6 +78,7 @@ object Main extends CrossPlatformIOApp {
         keys.xoxo.square -> Event.Square,
         keys.xoxo.triangle -> Event.Triangle,
         keys.xoxo.circle -> Event.Circle,
+        keys.l1 -> Event.L1,
         keys.r1 -> Event.R1,
       ).collectFirst {
         case (v, event) if v.on =>
