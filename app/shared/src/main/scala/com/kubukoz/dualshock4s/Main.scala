@@ -44,7 +44,7 @@ object Main extends CrossPlatformIOApp {
 
     def toAction: String = this match {
       case Cross    => "s"
-      case Triangle => "f 20"
+      case Triangle => "f 10"
       case Circle   => "d"
       case L1       => "w"
       case R1       => "m"
