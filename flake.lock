@@ -50,15 +50,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1732474137,
-        "narHash": "sha256-Qz2CO6aUlni6iczfqtRKAaZV2+HECKkBn+tq623Ovew=",
+        "lastModified": 1778672786,
+        "narHash": "sha256-Blg88K1jwG+P0Mr27+rKMFCufdrWkV3wWh9AdYtz0FQ=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "0b27578d20f17dc9cfc089c2c39ee49d6648dce2",
+        "rev": "eef00dfd8a712b34af845f9350bac681b1228bd1",
         "type": "github"
       },
       "original": {
         "owner": "nixos",
+        "ref": "nixpkgs-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -151,11 +152,11 @@
         "systems": "systems_2"
       },
       "locked": {
-        "lastModified": 1732554726,
-        "narHash": "sha256-sbP+vUwHywJ3HG4zktkvBhQnIOF4bHicz5fiMD8vzxk=",
+        "lastModified": 1777297879,
+        "narHash": "sha256-lDFYZytzrXUUedBJHJkjv5f9RBuitifGI139ZCDVQGY=",
         "owner": "indoorvivants",
         "repo": "sn-bindgen",
-        "rev": "82ab8fa1b48be349bf09b761660b36e7245d20e3",
+        "rev": "23505d91ea3ac50566a8a4ba78f280570f42e7ee",
         "type": "github"
       },
       "original": {

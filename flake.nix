@@ -1,5 +1,5 @@
 {
-  inputs.nixpkgs.url = "github:nixos/nixpkgs";
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.sbt-derivation.url = "github:zaninime/sbt-derivation";
   inputs.sn-bindgen.url = "github:indoorvivants/sn-bindgen";
